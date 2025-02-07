@@ -1,0 +1,63 @@
+erDiagram
+    Users ||--o{ Like : "can like"
+    Users ||--o| Loyalty : "has"
+    Users ||--o{ Rewards : "receives"
+    Users ||--o{ Orders : "places"
+    Users {
+        int id PK
+        string nom
+        string prenom
+        string role
+        string phone_number UK
+        string password
+        boolean isConfirme
+        datetime created_at
+    }
+
+    Content ||--o{ Like : "can be liked"
+    Content {
+        int id PK
+        string titre
+        string type
+        int saisons_possedees
+        string tmdb_id
+    }
+
+    Articles {
+        int id PK
+        string titre
+        string categories
+        float prix
+        text description
+    }
+
+    Like {
+        int id PK
+        int user_id FK
+        int content_id FK
+        datetime liked_at
+    }
+
+    Orders {
+        int id PK
+        int user_id FK
+        json data
+        string statut
+        datetime created_at
+    }
+
+    Loyalty {
+        int id PK
+        int user_id FK
+        int stamp_count
+        int card_count
+        datetime updated_at
+    }
+
+    Rewards {
+        int id PK
+        int user_id FK
+        string reward_type
+        datetime granted_at
+        boolean is_used
+    }
