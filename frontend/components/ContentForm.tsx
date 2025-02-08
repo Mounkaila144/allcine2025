@@ -11,6 +11,28 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
     const [suggestions, setSuggestions] = useState([]);
     const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
 
+    const genreMapping = {
+        28: 'Action',
+        12: 'Aventure',
+        16: 'Animation',
+        35: 'Comédie',
+        80: 'Crime',
+        99: 'Documentaire',
+        18: 'Drame',
+        10751: 'Famille',
+        14: 'Fantastique',
+        36: 'Histoire',
+        27: 'Horreur',
+        10402: 'Musique',
+        9648: 'Mystère',
+        10749: 'Romance',
+        878: 'Science-Fiction',
+        10770: 'Film TV',
+        53: 'Thriller',
+        10752: 'Guerre',
+        37: 'Western'
+    };
+
     const handleTypeChange = (value) => {
         setFormData(prev => ({
             ...prev,
@@ -49,16 +71,21 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                     if (tmdbResults) {
                         suggestions = tmdbResults.map(item => ({
                             id: item.id,
-                            title: item.title,
-                            original_title: item.original_title,
+                            title: item.title || item.name,
+                            original_title: item.original_title || item.original_name,
                             releaseDate: item.releaseDate,
                             posterPath: item.posterPath,
                             overview: item.overview,
-                            score: item.score,
-                            status: item.status
+                            vote_average: item.vote_average, // Gardons le même nom
+                            genre_ids: item.genre_ids || [], // Conserver les IDs des genres
+                            genres: item.genre_ids ? item.genre_ids.map(id => genreMapping[id]).filter(Boolean) : [], // Convertir en noms de genres
+                            status: '',
+                            chapters: 0,
+                            volumes: 0
                         }));
                     }
                 }
+
                 setSuggestions(suggestions);
             } catch (error) {
                 console.error('Erreur lors de la récupération des suggestions:', error);
@@ -80,12 +107,16 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                 ? suggestion.posterPath
                 : suggestion.posterPath ? `https://image.tmdb.org/t/p/w500${suggestion.posterPath}` : null,
             release_date: suggestion.releaseDate || prev.release_date,
-            genre: suggestion.genre || prev.genre,
+            // Utilisez les genres mappés pour films/séries ou le genre direct pour manga
+            genre: formData.type === 'manga'
+                ? suggestion.genre
+                : suggestion.genres?.join(', ') || '',
             status: suggestion.status,
+            rating: suggestion.vote_average, // Convertit en string
             chapters_count: suggestion.chapters || 0,
             volumes_count: suggestion.volumes || 0,
-            language: 'ja', // Par défaut pour les mangas
-            production_country: 'JP'
+            language: formData.type === 'manga' ? 'ja' : 'fr',
+            production_country: formData.type === 'manga' ? 'JP' : 'FR'
         }));
         setSuggestions([]);
     };
@@ -190,7 +221,43 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                     </div>
                 )}
             </div>
+            {formData.type === 'manga' && (
+                <div>
+                    {/* Nombre de chapitres (pour manga) */}
+                    <div>
+                        <Label htmlFor="chapters_count">Nombre de chapitres</Label>
+                        {readOnly ? (
+                            <div className="text-white">{formData.chapters_count}</div>
+                        ) : (
+                            <Input
+                                id="chapters_count"
+                                name="chapters_count"
+                                type="number"
+                                value={formData.chapters_count || 0}
+                                onChange={(e) => handleChange('chapters_count', e.target.value)}
+                                className="bg-blue-950/50 border-blue-900/30 text-white"
+                            />
+                        )}
+                    </div>
 
+                    {/* Nombre de volumes (pour manga) */}
+                    <div>
+                        <Label htmlFor="volumes_count">Nombre de volumes</Label>
+                        {readOnly ? (
+                            <div className="text-white">{formData.volumes_count}</div>
+                        ) : (
+                            <Input
+                                id="volumes_count"
+                                name="volumes_count"
+                                type="number"
+                                value={formData.volumes_count || 0}
+                                onChange={(e) => handleChange('volumes_count', e.target.value)}
+                                className="bg-blue-950/50 border-blue-900/30 text-white"
+                            />
+                        )}
+                    </div>
+                </div>
+            )}
             {/* Description */}
             <div>
                 <Label htmlFor="description">Description</Label>
@@ -257,22 +324,6 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                 )}
             </div>
 
-            {/* Statut */}
-            <div>
-                <Label htmlFor="status">Statut</Label>
-                {readOnly ? (
-                    <div className="text-white">{formData.status}</div>
-                ) : (
-                    <Input
-                        id="status"
-                        name="status"
-                        value={formData.status || ''}
-                        onChange={(e) => handleChange('status', e.target.value)}
-                        className="bg-blue-950/50 border-blue-900/30 text-white"
-                    />
-                )}
-            </div>
-
             {/* Note (Rating) */}
             <div>
                 <Label htmlFor="rating">Note</Label>
@@ -288,6 +339,7 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                         onChange={(e) => handleChange('rating', e.target.value)}
                         className="bg-blue-950/50 border-blue-900/30 text-white"
                     />
+
                 )}
             </div>
 
@@ -307,39 +359,6 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                 )}
             </div>
 
-            {/* Nombre de chapitres (pour manga) */}
-            <div>
-                <Label htmlFor="chapters_count">Nombre de chapitres</Label>
-                {readOnly ? (
-                    <div className="text-white">{formData.chapters_count}</div>
-                ) : (
-                    <Input
-                        id="chapters_count"
-                        name="chapters_count"
-                        type="number"
-                        value={formData.chapters_count || 0}
-                        onChange={(e) => handleChange('chapters_count', e.target.value)}
-                        className="bg-blue-950/50 border-blue-900/30 text-white"
-                    />
-                )}
-            </div>
-
-            {/* Nombre de volumes (pour manga) */}
-            <div>
-                <Label htmlFor="volumes_count">Nombre de volumes</Label>
-                {readOnly ? (
-                    <div className="text-white">{formData.volumes_count}</div>
-                ) : (
-                    <Input
-                        id="volumes_count"
-                        name="volumes_count"
-                        type="number"
-                        value={formData.volumes_count || 0}
-                        onChange={(e) => handleChange('volumes_count', e.target.value)}
-                        className="bg-blue-950/50 border-blue-900/30 text-white"
-                    />
-                )}
-            </div>
 
             {/* Saisons possédées (pour série) */}
             {formData.type === 'serie' && (

@@ -1,250 +1,373 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import {
   Settings as SettingsIcon,
   Moon,
+  Sun,
+  Link,
   Bell,
-  Globe,
-  Building,
-  Users,
-  Link
+  Shield,
+  CreditCard,
+  Store,
+  Mail,
+  Phone
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+const translations = {
+  fr: {
+    title: 'Paramètres',
+    subtitle: 'Gérez les préférences de votre application',
+    general: {
+      title: 'Général',
+      darkMode: 'Mode Sombre',
+      darkModeDesc: 'Basculer entre thème clair/sombre',
+      language: 'Langue',
+      notifications: 'Notifications',
+      notificationsDesc: 'Activer les notifications push',
+      smsNotifications: 'Notifications SMS',
+      emailNotifications: 'Notifications Email'
+    },
+    security: {
+      title: 'Sécurité',
+      twoFactor: 'Authentification à deux facteurs',
+      twoFactorDesc: 'Ajouter une couche de sécurité supplémentaire',
+      changePassword: 'Changer le mot de passe',
+      currentPassword: 'Mot de passe actuel',
+      newPassword: 'Nouveau mot de passe',
+      confirmPassword: 'Confirmer le mot de passe'
+    },
+    payment: {
+      title: 'Paiements',
+      defaultMethod: 'Méthode de paiement par défaut',
+      enableNita: 'Activer Nita',
+      nitaDesc: 'Accepter les paiements via Nita',
+      nitaId: 'ID Marchand Nita',
+      nitaKey: 'Clé API Nita',
+      enableMobileMoney: 'Activer Mobile Money',
+      mobileMoneyDesc: 'Accepter les paiements via Mobile Money'
+    },
+    store: {
+      title: 'Boutique',
+      storeName: 'Nom de la boutique',
+      storeDesc: 'Description de la boutique',
+      currency: 'Devise',
+      businessHours: 'Heures d\'ouverture',
+      contactEmail: 'Email de contact',
+      contactPhone: 'Téléphone de contact',
+      address: 'Adresse'
+    },
+    save: 'Enregistrer les modifications',
+    cancel: 'Annuler'
+  }
+};
+
+type Language = 'fr';
+type Currency = 'XOF' | 'NGN' | 'USD';
+type PaymentMethod = 'nita' | 'mobile-money' | 'cash';
+
+interface SettingProps {
+  label: string;
+  description?: string;
+  children: React.ReactNode;
+}
+
+const SettingItem: React.FC<SettingProps> = ({ label, description, children }) => (
+    <div className="flex flex-col space-y-2">
+      <div className="flex justify-between items-center">
+        <div>
+          <Label className="text-base">{label}</Label>
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
+        </div>
+        {children}
+      </div>
+    </div>
+);
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [notifications, setNotifications] = useState(true);
-  const [language, setLanguage] = useState('en');
+  const [language] = useState<Language>('fr');
+  const t = translations[language];
 
-  // Hydration
-  useEffect(() => {
-    setMounted(true);
-    // Charger les préférences sauvegardées
-    const savedLanguage = localStorage.getItem('language') || 'en';
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setLanguage(savedLanguage);
-    setTheme(savedTheme);
-    setNotifications(localStorage.getItem('notifications') !== 'false');
-  }, [setTheme]);
+  // State for general settings
+  const [notifications, setNotifications] = useState({
+    push: true,
+    sms: true,
+    email: true
+  });
 
-  // Gérer le changement de thème
-  const handleThemeChange = (checked: boolean) => {
-    const newTheme = checked ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    toast.success(checked ? 'Mode sombre activé' : 'Mode clair activé');
-  };
+  // State for security settings
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    current: '',
+    new: '',
+    confirm: ''
+  });
 
-  // Gérer le changement de langue
-  const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLanguage = e.target.value;
-    setLanguage(newLanguage);
-    localStorage.setItem('language', newLanguage);
-    toast.success('Langue mise à jour');
-  };
+  // State for payment settings
+  const [paymentSettings, setPaymentSettings] = useState({
+    defaultMethod: 'nita' as PaymentMethod,
+    nitaEnabled: true,
+    nitaId: '',
+    nitaKey: '',
+    mobileMoneyEnabled: true
+  });
 
-  // Gérer le changement des notifications
-  const handleNotificationsChange = (checked: boolean) => {
-    setNotifications(checked);
-    localStorage.setItem('notifications', checked.toString());
-    toast.success(checked ? 'Notifications activées' : 'Notifications désactivées');
-  };
+  // State for store settings
+  const [storeSettings, setStoreSettings] = useState({
+    name: '',
+    description: '',
+    currency: 'XOF' as Currency,
+    businessHours: '',
+    contactEmail: '',
+    contactPhone: '',
+    address: ''
+  });
 
-  if (!mounted) {
-    return null;
-  }
-
-  const translations = {
-    en: {
-      title: 'Settings',
-      subtitle: 'Manage your application preferences',
-      darkMode: 'Dark Mode',
-      darkModeDesc: 'Toggle dark/light theme',
-      notifications: 'Notifications',
-      notificationsDesc: 'Enable push notifications',
-      language: 'Language',
-      save: 'Save Changes',
-      tenantSettings: 'Tenant Settings',
-      restaurantName: 'Restaurant Name',
-      contactEmail: 'Contact Email',
-      businessHours: 'Business Hours',
-      userManagement: 'User Management',
-      manageUsers: 'Manage Users',
-      manageRoles: 'Manage Roles',
-      accessControl: 'Access Control',
-      integrations: 'Integrations',
-      paymentGateway: 'Payment Gateway',
-      emailService: 'Email Service',
-      configureIntegrations: 'Configure Integrations'
-    },
-    fr: {
-      title: 'Paramètres',
-      subtitle: 'Gérez les préférences de votre application',
-      darkMode: 'Mode Sombre',
-      darkModeDesc: 'Basculer entre thème clair/sombre',
-      notifications: 'Notifications',
-      notificationsDesc: 'Activer les notifications push',
-      language: 'Langue',
-      save: 'Enregistrer les modifications',
-      tenantSettings: 'Paramètres du Restaurant',
-      restaurantName: 'Nom du Restaurant',
-      contactEmail: 'Email de Contact',
-      businessHours: 'Heures d\'Ouverture',
-      userManagement: 'Gestion des Utilisateurs',
-      manageUsers: 'Gérer les Utilisateurs',
-      manageRoles: 'Gérer les Rôles',
-      accessControl: 'Contrôle d\'Accès',
-      integrations: 'Intégrations',
-      paymentGateway: 'Passerelle de Paiement',
-      emailService: 'Service Email',
-      configureIntegrations: 'Configurer les Intégrations'
+  const handleSaveSettings = async () => {
+    try {
+      // Implement your save logic here
+      toast.success('Paramètres enregistrés avec succès');
+    } catch (error) {
+      toast.error('Erreur lors de l\'enregistrement des paramètres');
     }
   };
 
-  const t = translations[language as keyof typeof translations];
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">{t.title}</h1>
-        <p className="text-blue-100/60">{t.subtitle}</p>
-      </div>
+      <div className="container mx-auto p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">{t.title}</h1>
+          <p className="text-muted-foreground">{t.subtitle}</p>
+        </div>
 
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-        <Card className="glass-effect border-blue-900/20">
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <SettingsIcon className="h-5 w-5 text-blue-400" />
-              <CardTitle className="text-lg text-white">{t.title}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-white">{t.darkMode}</Label>
-                <p className="text-sm text-blue-100/60">{t.darkModeDesc}</p>
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
+          {/* General Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <SettingsIcon className="h-5 w-5" />
+                <CardTitle>{t.general.title}</CardTitle>
               </div>
-              <Switch
-                checked={theme === 'dark'}
-                onCheckedChange={handleThemeChange}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-white">{t.notifications}</Label>
-                <p className="text-sm text-blue-100/60">{t.notificationsDesc}</p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <SettingItem label={t.general.darkMode} description={t.general.darkModeDesc}>
+                <div className="flex items-center space-x-2">
+                  <Sun className="h-4 w-4" />
+                  <Switch checked={theme === 'dark'} onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')} />
+                  <Moon className="h-4 w-4" />
+                </div>
+              </SettingItem>
+
+              <SettingItem label={t.general.notifications}>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>{t.general.smsNotifications}</Label>
+                    <Switch
+                        checked={notifications.sms}
+                        onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, sms: checked }))}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label>{t.general.emailNotifications}</Label>
+                    <Switch
+                        checked={notifications.email}
+                        onCheckedChange={(checked) => setNotifications(prev => ({ ...prev, email: checked }))}
+                    />
+                  </div>
+                </div>
+              </SettingItem>
+            </CardContent>
+          </Card>
+
+          {/* Security Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <Shield className="h-5 w-5" />
+                <CardTitle>{t.security.title}</CardTitle>
               </div>
-              <Switch
-                checked={notifications}
-                onCheckedChange={handleNotificationsChange}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white">{t.language}</Label>
-              <select 
-                className="w-full bg-blue-950/50 border-blue-900/30 text-white rounded-md"
-                value={language}
-                onChange={handleLanguageChange}
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <SettingItem label={t.security.twoFactor} description={t.security.twoFactorDesc}>
+                <Switch
+                    checked={twoFactorEnabled}
+                    onCheckedChange={setTwoFactorEnabled}
+                />
+              </SettingItem>
+
+              <div className="space-y-4">
+                <h3 className="font-medium">{t.security.changePassword}</h3>
+                <div className="space-y-4">
+                  <Input
+                      type="password"
+                      placeholder={t.security.currentPassword}
+                      value={passwordForm.current}
+                      onChange={(e) => setPasswordForm(prev => ({ ...prev, current: e.target.value }))}
+                  />
+                  <Input
+                      type="password"
+                      placeholder={t.security.newPassword}
+                      value={passwordForm.new}
+                      onChange={(e) => setPasswordForm(prev => ({ ...prev, new: e.target.value }))}
+                  />
+                  <Input
+                      type="password"
+                      placeholder={t.security.confirmPassword}
+                      value={passwordForm.confirm}
+                      onChange={(e) => setPasswordForm(prev => ({ ...prev, confirm: e.target.value }))}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <CreditCard className="h-5 w-5" />
+                <CardTitle>{t.payment.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Select
+                  value={paymentSettings.defaultMethod}
+                  onValueChange={(value: PaymentMethod) =>
+                      setPaymentSettings(prev => ({ ...prev, defaultMethod: value }))
+                  }
               >
-                <option value="en">English</option>
-                <option value="fr">Français</option>
-              </select>
-            </div>
-          </CardContent>
-        </Card>
+                <SelectTrigger>
+                  <SelectValue placeholder={t.payment.defaultMethod} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nita">Nita</SelectItem>
+                  <SelectItem value="mobile-money">Mobile Money</SelectItem>
+                  <SelectItem value="cash">Cash</SelectItem>
+                </SelectContent>
+              </Select>
 
-        <Card className="glass-effect border-blue-900/20">
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Building className="h-5 w-5 text-blue-400" />
-              <CardTitle className="text-lg text-white">{t.tenantSettings}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label className="text-white">{t.restaurantName}</Label>
-              <Input
-                placeholder="Enter restaurant name"
-                className="bg-blue-950/50 border-blue-900/30 text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white">{t.contactEmail}</Label>
-              <Input
-                type="email"
-                placeholder="contact@restaurant.com"
-                className="bg-blue-950/50 border-blue-900/30 text-white"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white">{t.businessHours}</Label>
-              <Input
-                placeholder="Mon-Sun: 9:00 AM - 10:00 PM"
-                className="bg-blue-950/50 border-blue-900/30 text-white"
-              />
-            </div>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
-              {t.save}
-            </Button>
-          </CardContent>
-        </Card>
+              <SettingItem label={t.payment.enableNita} description={t.payment.nitaDesc}>
+                <Switch
+                    checked={paymentSettings.nitaEnabled}
+                    onCheckedChange={(checked) =>
+                        setPaymentSettings(prev => ({ ...prev, nitaEnabled: checked }))
+                    }
+                />
+              </SettingItem>
 
-        <Card className="glass-effect border-blue-900/20">
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Users className="h-5 w-5 text-blue-400" />
-              <CardTitle className="text-lg text-white">{t.userManagement}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
-              {t.manageUsers}
-            </Button>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
-              {t.manageRoles}
-            </Button>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
-              {t.accessControl}
-            </Button>
-          </CardContent>
-        </Card>
+              {paymentSettings.nitaEnabled && (
+                  <div className="space-y-4">
+                    <Input
+                        placeholder={t.payment.nitaId}
+                        value={paymentSettings.nitaId}
+                        onChange={(e) =>
+                            setPaymentSettings(prev => ({ ...prev, nitaId: e.target.value }))
+                        }
+                    />
+                    <Input
+                        type="password"
+                        placeholder={t.payment.nitaKey}
+                        value={paymentSettings.nitaKey}
+                        onChange={(e) =>
+                            setPaymentSettings(prev => ({ ...prev, nitaKey: e.target.value }))
+                        }
+                    />
+                  </div>
+              )}
+            </CardContent>
+          </Card>
 
-        <Card className="glass-effect border-blue-900/20">
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Link className="h-5 w-5 text-blue-400" />
-              <CardTitle className="text-lg text-white">{t.integrations}</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-white">{t.paymentGateway}</Label>
-              <select className="w-full bg-blue-950/50 border-blue-900/30 text-white rounded-md">
-                <option value="stripe">Stripe</option>
-                <option value="paypal">PayPal</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-white">{t.emailService}</Label>
-              <select className="w-full bg-blue-950/50 border-blue-900/30 text-white rounded-md">
-                <option value="sendgrid">SendGrid</option>
-                <option value="mailchimp">Mailchimp</option>
-              </select>
-            </div>
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
-              {t.configureIntegrations}
-            </Button>
-          </CardContent>
-        </Card>
+          {/* Store Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center space-x-2">
+                <Store className="h-5 w-5" />
+                <CardTitle>{t.store.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Input
+                  placeholder={t.store.storeName}
+                  value={storeSettings.name}
+                  onChange={(e) =>
+                      setStoreSettings(prev => ({ ...prev, name: e.target.value }))
+                  }
+              />
+
+              <Textarea
+                  placeholder={t.store.storeDesc}
+                  value={storeSettings.description}
+                  onChange={(e) =>
+                      setStoreSettings(prev => ({ ...prev, description: e.target.value }))
+                  }
+              />
+
+              <Select
+                  value={storeSettings.currency}
+                  onValueChange={(value: Currency) =>
+                      setStoreSettings(prev => ({ ...prev, currency: value }))
+                  }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t.store.currency} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="XOF">XOF (Franc CFA)</SelectItem>
+                  <SelectItem value="NGN">NGN (Naira)</SelectItem>
+                  <SelectItem value="USD">USD (Dollar)</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Input
+                  placeholder={t.store.businessHours}
+                  value={storeSettings.businessHours}
+                  onChange={(e) =>
+                      setStoreSettings(prev => ({ ...prev, businessHours: e.target.value }))
+                  }
+              />
+
+              <Input
+                  type="email"
+                  placeholder={t.store.contactEmail}
+                  value={storeSettings.contactEmail}
+                  onChange={(e) =>
+                      setStoreSettings(prev => ({ ...prev, contactEmail: e.target.value }))
+                  }
+              />
+
+              <Input
+                  type="tel"
+                  placeholder={t.store.contactPhone}
+                  value={storeSettings.contactPhone}
+                  onChange={(e) =>
+                      setStoreSettings(prev => ({ ...prev, contactPhone: e.target.value }))
+                  }
+              />
+
+              <Textarea
+                  placeholder={t.store.address}
+                  value={storeSettings.address}
+                  onChange={(e) =>
+                      setStoreSettings(prev => ({ ...prev, address: e.target.value }))
+                  }
+              />
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex justify-end space-x-4">
+          <Button variant="outline">{t.cancel}</Button>
+          <Button onClick={handleSaveSettings}>{t.save}</Button>
+        </div>
       </div>
-    </div>
   );
 }

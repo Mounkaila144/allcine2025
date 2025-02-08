@@ -29,6 +29,7 @@ app.use('/api/articles', require('./src/routes/article.routes'));
 app.use('/api/contents', require('./src/routes/content.routes'));
 app.use('/api/likes', require('./src/routes/like.routes'));
 app.use('/api/loyalty', require('./src/routes/loyalty.routes'));
+app.use('/api/dashboard', require('./src/routes/dashboard.routes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

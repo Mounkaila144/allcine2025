@@ -21,7 +21,9 @@ const Content = sequelize.define('Content', {
     },
     tmdb_id: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
+        unique: true // Added unique constraint
+
     },
     genre: {
         type: DataTypes.STRING,
@@ -48,8 +50,12 @@ const Content = sequelize.define('Content', {
         defaultValue: 'released'
     },
     rating: {
-        type: DataTypes.ENUM('G', 'PG', 'PG-13', 'R', 'NC-17', 'NR'),
-        allowNull: true
+        type: DataTypes.DECIMAL(3, 1), // <-- Définition de la colonne rating
+        allowNull: true,
+        validate: {
+            min: 0,
+            max: 10
+        }
     },
     duration_minutes: {
         type: DataTypes.INTEGER,

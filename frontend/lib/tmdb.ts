@@ -4,7 +4,6 @@ export async function fetchTMDBData(titre: string, type: 'film' | 'serie'): Prom
         console.error("Clé API TMDB non définie");
         return null;
     }
-
     const endpoint = type === 'film' ? 'movie' : 'tv';
     const url = `https://api.themoviedb.org/3/search/${endpoint}?api_key=${apiKey}&query=${encodeURIComponent(titre)}&language=fr`;
 
@@ -14,15 +13,13 @@ export async function fetchTMDBData(titre: string, type: 'film' | 'serie'): Prom
         if (data.results && data.results.length > 0) {
             return data.results.map((item: any) => ({
                 id: item.id,
-                // Pour les films, TMDB retourne "title" et "original_title",
-                // pour les séries, "name" et "original_name"
                 title: item.title || item.name,
                 original_title: item.original_title || item.original_name || (item.title || item.name),
                 releaseDate: item.release_date || item.first_air_date,
-                // Pour l'affichage dans la suggestion, on peut conserver le chemin brut et ajouter le préfixe lors de la sélection
                 posterPath: item.poster_path ? item.poster_path : null,
                 overview: item.overview,
-                score: item.vote_average,
+                vote_average: item.vote_average, // Gardons le nom original
+                genre_ids: item.genre_ids, // Ajout des genre_ids
             }));
         }
         return null;

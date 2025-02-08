@@ -1,34 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react'; // Import useEffect
+import { useState } from 'react';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Search, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ContentForm from '@/components/ContentForm'; // Ajoutez cette ligne
+import ContentForm from '@/components/ContentForm';
 import {
     useGetContentsQuery,
     useCreateContentMutation,
     useUpdateContentMutation,
     useDeleteContentMutation,
-    type Content as ContentType, // Alias Content type to avoid confusion
+    type Content as ContentType,
     type CreateContentDto
 } from '@/lib/redux/api/contentsApi';
-import {fetchTMDBData} from "@/lib/tmdb";
 
-// Define interfaces outside the component
-export interface Content extends ContentType {} // Use the aliased Content type
+// Define interfaces
+export interface Content extends ContentType {}
 export interface ContentResponse {
     totalItems: number;
     totalPages: number;
     currentPage: number;
     contents: Content[];
 }
-
 
 const defaultFormData: CreateContentDto = {
     titre: '',
@@ -46,6 +43,7 @@ const defaultFormData: CreateContentDto = {
 };
 
 export default function ContentsPage() {
+    // State management
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [filters, setFilters] = useState({
@@ -58,7 +56,7 @@ export default function ContentsPage() {
     const [editingContent, setEditingContent] = useState<Content | null>(null);
     const [contentFormData, setContentFormData] = useState<CreateContentDto>(defaultFormData);
 
-    // Créez un objet de filtres stables qui ne change que lorsque les valeurs pertinentes changent
+    // Query filters
     const queryFilters = {
         ...(filters.search && filters.search.length >= 3 && { search: filters.search }),
         ...(filters.type !== 'all' && { type: filters.type }),
@@ -68,12 +66,21 @@ export default function ContentsPage() {
         limit: pageSize
     };
 
-    const { data: { contents = [], pagination } = {}, isLoading } = useGetContentsQuery(queryFilters);
+    // API Hooks
+    const { data, isLoading } = useGetContentsQuery(queryFilters);
+    const contents = data?.contents || [];
+    const pagination = {
+        totalItems: data?.totalItems || 0,
+        totalPages: data?.totalPages || 0,
+        currentPage: data?.currentPage || 1,
+        pageSize
+    };
+
     const [createContent] = useCreateContentMutation();
     const [updateContent] = useUpdateContentMutation();
     const [deleteContent] = useDeleteContentMutation();
 
-
+    // Handlers
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
         setContentFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -94,8 +101,6 @@ export default function ContentsPage() {
         setPage(1);
     };
 
-
-
     const handleEdit = (content: Content) => {
         setEditingContent(content);
         setContentFormData(content);
@@ -112,6 +117,7 @@ export default function ContentsPage() {
             console.error('Error:', error);
         }
     };
+
     const handleSubmit = async (formData: CreateContentDto) => {
         try {
             const mutation = editingContent
@@ -126,6 +132,8 @@ export default function ContentsPage() {
             console.error('Error:', error);
         }
     };
+
+    // Table columns configuration
     const columns = [
         {
             key: 'image_url',
@@ -170,11 +178,11 @@ export default function ContentsPage() {
         }
     ];
 
-
     if (isLoading) return <div>Chargement...</div>;
 
     return (
         <div className="space-y-6">
+            {/* Header section */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold text-white mb-2">Contenus</h1>
@@ -204,6 +212,7 @@ export default function ContentsPage() {
                 </Dialog>
             </div>
 
+            {/* Filters section */}
             <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="relative">
@@ -219,8 +228,8 @@ export default function ContentsPage() {
                         <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                         {filters.search?.length > 0 && filters.search.length < 3 && (
                             <span className="text-xs text-blue-400 mt-1 absolute bottom-[-20px]">
-                Min. 3 caractères
-              </span>
+                                Min. 3 caractères
+                            </span>
                         )}
                     </div>
                     <Select
@@ -276,19 +285,15 @@ export default function ContentsPage() {
                 )}
             </div>
 
+            {/* DataTable section */}
             <DataTable
                 columns={columns}
-                data={contents} // Use contents directly from the query
-                pagination={{
-                    totalItems: pagination?.totalItems || 0, // Use optional chaining and default value
-                    totalPages: pagination?.totalPages || 0,
-                    currentPage: pagination?.currentPage || 1,
-                    pageSize: pageSize
-                }}
-                onPageChange={(page) => setPage(page)} // Update page state
+                data={contents}
+                pagination={pagination}
+                onPageChange={setPage}
                 onPageSizeChange={(size) => {
                     setPageSize(size);
-                    setPage(1); // Reset to first page when changing page size
+                    setPage(1);
                 }}
             />
         </div>
