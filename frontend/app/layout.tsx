@@ -17,7 +17,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <Providers>
-          <DebugAuth />
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"

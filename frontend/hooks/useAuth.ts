@@ -14,7 +14,7 @@ export function useAuth(requireAuth: boolean = true) {
             router.push('/');
         } else if (!requireAuth && auth.isAuthenticated && auth.token) {
             console.log('🔓 Redirection vers dashboard (déjà authentifié)');
-            router.push('/dashboard');
+            router.push('/client');
         }
     }, [auth.isAuthenticated, auth.token, requireAuth, router]);
 
