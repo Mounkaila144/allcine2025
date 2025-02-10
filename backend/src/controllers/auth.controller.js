@@ -346,10 +346,44 @@ const resetPassword = async (req, res) => {
         });
     }
 };
+const resendOTP = async (req, res) => {
+    try {
+        const { phone } = req.body;
+
+        const user = await User.findOne({ where: { phone } });
+        if (!user) {
+            return res.status(400).json({ message: 'Utilisateur non trouvé' });
+        }
+
+        const otp = generateOTP();
+        const otpExpiration = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+        const otpSent = await sendOTP(phone, otp);
+        if (!otpSent) {
+            return res.status(500).json({
+                message: 'Erreur lors de l\'envoi du code de vérification'
+            });
+        }
+
+        user.otpCode = otp;
+        user.otpExpiration = otpExpiration;
+        user.otpAttempts = 0;
+        await user.save();
+
+        res.json({ message: 'Un nouveau code de vérification a été envoyé' });
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'Erreur lors du renvoi du code',
+            error: error.message
+        });
+    }
+};
 module.exports = {
     register,
     login,
     verifyOTP,
     requestPasswordReset,
-    resetPassword
+    resetPassword,
+    resendOTP
 };

@@ -1,9 +1,14 @@
-import { LoginForm } from '@/components/auth/login-form';
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
-    return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-            <LoginForm />
-        </div>
-    );
+    const router = useRouter();
+
+    useEffect(() => {
+        router.push("/client/login"); // Rediriger automatiquement vers /client/login
+    }, [router]);
+
+    return null; // Éviter tout affichage sur cette page
 }

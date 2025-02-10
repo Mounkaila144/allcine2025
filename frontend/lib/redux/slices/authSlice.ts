@@ -1,50 +1,57 @@
+// lib/redux/slices/authSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 interface User {
-  id: number;
+  id: string;
   email: string;
-  nom: string;
-  prenom: string;
   role: string;
-  tenant_id: number;
+  // Ajoutez d'autres propriétés utilisateur si nécessaire
 }
 
 interface AuthState {
-  token: string | null;
   user: User | null;
-  tenantId: number | null;
+  token: string | null;
   isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
-  token: null,
   user: null,
-  tenantId: null,
-  isAuthenticated: false,
+  token: null,
+  isAuthenticated: false
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (
-        state,
-        action: PayloadAction<{
-          token: string;
-          user: User;
-        }>
-    ) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user;
-      state.tenantId = action.payload.user.tenant_id;
+    setCredentials: (state, action: PayloadAction<{
+      user: User;
+      token: string;
+      isAuthenticated: boolean;
+    }>) => {
+      const { user, token } = action.payload;
+      state.user = user;
+      state.token = token;
       state.isAuthenticated = true;
+
+      // Stockage dans les cookies pour le middleware
+      if (typeof window !== 'undefined') {
+        document.cookie = `token=${token}; path=/`;
+        document.cookie = `role=${user.role}; path=/`;
+      }
     },
     logout: (state) => {
-      state.token = null;
       state.user = null;
-      state.tenantId = null;
+      state.token = null;
       state.isAuthenticated = false;
-    },
-  },
+
+      // Nettoyage des cookies
+      if (typeof window !== 'undefined') {
+        document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+        document.cookie = 'role=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT';
+      }
+    }
+  }
 });
 
 export const { setCredentials, logout } = authSlice.actions;

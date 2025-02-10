@@ -7,7 +7,6 @@ const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_URL,
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token;
-    const tenantId = (getState() as RootState).auth.tenantId;
 
     if (token) {
       headers.set('authorization', `Bearer ${token}`);
@@ -65,6 +64,6 @@ const baseQueryWithReauth: BaseQueryFn = async (args, api, extraOptions) => {
 
 export const api = createApi({
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Contents','Orders', 'Reservations', 'Users'],
+  tagTypes: ['Contents','Orders', 'Categories', 'Users','Auth','DashboardStats'],
   endpoints: () => ({}),
 });

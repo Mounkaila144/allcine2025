@@ -1,4 +1,4 @@
-import './globals.css';
+import './client.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from "@/components/client/theme-provider";

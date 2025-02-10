@@ -1,82 +1,67 @@
 const { Content, Like, User} = require('../models');
 const path = require('path');
 const fs = require('fs');
-const { processImage } = require('../config/multer');
 const {Op, Sequelize} = require("sequelize");
-
 
 const getAllContent = async (req, res) => {
     try {
-        const {
-            search, type, startDate, endDate,
-            status, rating, language,
-            page = 1,
-            limit = 10
-        } = req.query;
-
-        // Construction dynamique des conditions
-        let whereConditions = {};
-
-        if (search) {
-            whereConditions[Op.or] = [
-                Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('titre')), 'LIKE', `%${search.toLowerCase()}%`),
-                Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('description')), 'LIKE', `%${search.toLowerCase()}%`),
-                Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('genre')), 'LIKE', `%${search.toLowerCase()}%`)
-            ];
-        }
-
-        // Après la modification
-        if (type && type !== 'all' && type !== 'null') {
-            whereConditions.type = type;
-        }
-
-        if (status) whereConditions.status = status;
-        if (rating) whereConditions.rating = rating;
-        if (language) whereConditions.language = language;
-
-        if (startDate && endDate) {
-            whereConditions.release_date = {
-                [Op.between]: [startDate, endDate]
-            };
-        } else if (startDate) {
-            whereConditions.release_date = {
-                [Op.gte]: startDate
-            };
-        } else if (endDate) {
-            whereConditions.release_date = {
-                [Op.lte]: endDate
-            };
-        }
-
+        // Extract query parameters
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
         const offset = (page - 1) * limit;
+        const search = req.query.search || '';
+        const type = req.query.type || null;
+        const genre = req.query.genre || null;
 
-        const { count, rows: content } = await Content.findAndCountAll({
-            where: whereConditions,
-            order: [['release_date', 'DESC']],
-            limit: Number(limit),
-            offset: Number(offset),
-            include: [{
-                model: Like,
-                include: [{
-                    model: User,
-                    attributes: ['nom', 'prenom']
-                }]
-            }]
+        // Build the where condition
+        const whereCondition = {};
+
+        // Add search condition if search term is 3 or more characters
+        if (search.length >= 3) {
+            whereCondition.titre = {
+                [Op.like]: `%${search}%`
+            };
+        }
+
+        // Add type filter if specified and not 'all'
+        if (type && type !== 'all') {
+            whereCondition.type = type;
+        }
+
+        // Add genre filter if specified and not 'all'
+        if (genre && genre !== 'all') {
+            whereCondition.genre = genre;
+        }
+
+        // Get contents with pagination and total count
+        const { count, rows: contents } = await Content.findAndCountAll({
+            where: whereCondition,
+            order: [['titre', 'ASC']],
+            limit,
+            offset
         });
 
+        // Calculate pagination metadata
+        const totalPages = Math.ceil(count / limit);
+
+        // Format the response
         res.json({
+            contents,
             totalItems: count,
-            totalPages: Math.ceil(count / limit),
-            currentPage: Number(page),
-            contents: content
+            totalPages,
+            currentPage: page,
+            limit
         });
+
     } catch (error) {
+        console.error('Error in getAllContents:', error);
         res.status(500).json({
-            message: 'Erreur lors de la récupération du contenu',
+            message: 'Erreur lors de la récupération des contenus',
             error: error.message
         });
     }
 };
+
 const createContent = async (req, res) => {
     try {
         const {

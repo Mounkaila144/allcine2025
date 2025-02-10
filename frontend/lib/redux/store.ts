@@ -18,16 +18,16 @@ import ordersReducer from './slices/ordersSlice';
 import reservationsReducer from './slices/reservationsSlice';
 import { authApi } from './api/authApi';
 
-// Configuration de la persistance
 const persistConfig = {
     key: 'root',
     version: 1,
     storage,
     whitelist: ['auth'],
-    blacklist: [api.reducerPath, authApi.reducerPath]
+    blacklist: [api.reducerPath, authApi.reducerPath],
+    // Ajout d'un timeout pour éviter les problèmes de persistance
+    timeout: 2000,
 };
 
-// Combine tous les reducers
 const rootReducer = combineReducers({
     auth: authReducer,
     orders: ordersReducer,
@@ -36,10 +36,8 @@ const rootReducer = combineReducers({
     [authApi.reducerPath]: authApi.reducer,
 });
 
-// Crée le reducer persisté
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// Configuration du store
 export const store = configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
@@ -54,6 +52,5 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
-
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

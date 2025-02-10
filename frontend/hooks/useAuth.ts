@@ -1,22 +1,49 @@
+
 // hooks/useAuth.ts
 "use client";
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/lib/redux/hooks';
+import { useEffect } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { useAppSelector } from "@/lib/redux/hooks";
+import { toast } from "sonner";
 
-export function useAuth(requireAuth: boolean = true) {
+export function useAuth() {
     const router = useRouter();
-    const auth = useAppSelector((state) => state.auth);
+    const pathname = usePathname();
+    const { isAuthenticated, token, user } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
-        if (requireAuth && (!auth.isAuthenticated || !auth.token)) {
-            console.log('🔒 Redirection vers login (non authentifié)');
-            router.push('/');
-        } else if (!requireAuth && auth.isAuthenticated && auth.token) {
-            console.log('🔓 Redirection vers dashboard (déjà authentifié)');
-            router.push('/client');
-        }
-    }, [auth.isAuthenticated, auth.token, requireAuth, router]);
+        // Debug logs
+        console.log("Auth State:", {
+            isAuthenticated,
+            hasToken: !!token,
+            userRole: user?.role,
+            currentPath: pathname
+        });
 
-    return auth;
+        // Si l'utilisateur est connecté et sur la route racine
+        if (isAuthenticated && token && pathname === '/') {
+            router.push('/client');
+            return;
+        }
+
+        // Protection uniquement de la route dashboard
+        if (pathname.startsWith('/dashboard')) {
+            if (!isAuthenticated || !token) {
+                console.log("User not authenticated, redirecting to client page...");
+                router.push('/client');
+                toast.error("Veuillez vous connecter pour accéder au tableau de bord");
+                return;
+            }
+
+            if (user?.role !== 'admin') {
+                console.log("Non-admin trying to access dashboard, redirecting...");
+                router.push('/client');
+                toast.error("Accès non autorisé");
+                return;
+            }
+        }
+
+    }, [isAuthenticated, token, user, router, pathname]);
+
+    return { isAuthenticated, token, user };
 }

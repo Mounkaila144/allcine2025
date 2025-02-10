@@ -10,9 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Film, Tv, Book, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Film, Tv, Book, Search, ChevronLeft, ChevronRight, X } from "lucide-react"
 import Image from "next/image"
 import { useGetContentsQuery } from '@/lib/redux/api/contentsApi'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose
+} from "@/components/ui/dialog"
 
 const ITEMS_PER_PAGE = 10
 
@@ -23,6 +31,8 @@ export default function ContentClient() {
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState("titre")
   const [isMobile, setIsMobile] = useState(false)
+  const [selectedContent, setSelectedContent] = useState(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768)
@@ -34,6 +44,7 @@ export default function ContentClient() {
   const queryFilters = {
     ...(searchTerm.length >= 3 && { search: searchTerm }),
     ...(typeFilter !== "all" && { type: typeFilter }),
+    ...(genreFilter !== "all" && { genre: genreFilter }),
     page: currentPage,
     limit: ITEMS_PER_PAGE
   }
@@ -48,7 +59,11 @@ export default function ContentClient() {
     return a.titre.localeCompare(b.titre)
   })
 
-  // Fonction pour générer les numéros de page visibles
+  const handleOpenModal = (content) => {
+    setSelectedContent(content)
+    setIsModalOpen(true)
+  }
+
   const getVisiblePageNumbers = () => {
     if (!totalPages) return []
 
@@ -133,10 +148,25 @@ export default function ContentClient() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Tous les genres</SelectItem>
-              <SelectItem value="action">Action</SelectItem>
-              <SelectItem value="drame">Drame</SelectItem>
-              <SelectItem value="science-fiction">Science-fiction</SelectItem>
-              <SelectItem value="fantaisie">Fantaisie</SelectItem>
+              <SelectItem value="Action">Action</SelectItem>
+              <SelectItem value="Aventure">Aventure</SelectItem>
+              <SelectItem value="Animation">Animation</SelectItem>
+              <SelectItem value="Comédie">Comédie</SelectItem>
+              <SelectItem value="Crime">Crime</SelectItem>
+              <SelectItem value="Documentaire">Documentaire</SelectItem>
+              <SelectItem value="Drame">Drame</SelectItem>
+              <SelectItem value="Famille">Famille</SelectItem>
+              <SelectItem value="Fantastique">Fantastique</SelectItem>
+              <SelectItem value="Histoire">Histoire</SelectItem>
+              <SelectItem value="Horreur">Horreur</SelectItem>
+              <SelectItem value="Musique">Musique</SelectItem>
+              <SelectItem value="Mystère">Mystère</SelectItem>
+              <SelectItem value="Romance">Romance</SelectItem>
+              <SelectItem value="Science-Fiction">Science-Fiction</SelectItem>
+              <SelectItem value="Thriller">Thriller</SelectItem>
+              <SelectItem value="Guerre">Guerre</SelectItem>
+              <SelectItem value="Western">Western</SelectItem>
+              <SelectItem value="Film TV">Film TV</SelectItem>
             </SelectContent>
           </Select>
 
@@ -197,12 +227,71 @@ export default function ContentClient() {
                     {item.saisons_possedees} saison{item.saisons_possedees > 1 ? 's' : ''}
                   </span>
                     )}
-                    <Button size="sm" variant="outline">Voir plus</Button>
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleOpenModal(item)}
+                    >
+                      Voir plus
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
           ))}
         </div>
+
+        {/* Modal de détails */}
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                {selectedContent?.type === "film" && <Film className="h-4 w-4" />}
+                {selectedContent?.type === "serie" && <Tv className="h-4 w-4" />}
+                {selectedContent?.type === "manga" && <Book className="h-4 w-4" />}
+                {selectedContent?.titre}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4">
+              {selectedContent?.image_url && (
+                  <div className="relative h-48 w-full">
+                    <Image
+                        src={selectedContent.image_url}
+                        alt={selectedContent.titre}
+                        fill
+                        className="object-cover rounded-lg"
+                    />
+                  </div>
+              )}
+              <div className="flex gap-4 text-sm text-muted-foreground">
+                <span>{selectedContent?.genre}</span>
+                <span>{selectedContent?.release_date && new Date(selectedContent.release_date).getFullYear()}</span>
+                {selectedContent?.duration_minutes && (
+                    <span>{selectedContent.duration_minutes} min</span>
+                )}
+              </div>
+              {selectedContent?.description && (
+                  <DialogDescription className="text-foreground">
+                    {selectedContent.description}
+                  </DialogDescription>
+              )}
+              {selectedContent?.type === "serie" && (
+                  <div className="text-sm">
+                    Nombre de saisons : {selectedContent.saisons_possedees}
+                  </div>
+              )}
+              {selectedContent?.language && (
+                  <div className="text-sm text-muted-foreground">
+                    Langue : {selectedContent.language}
+                  </div>
+              )}
+            </div>
+            <DialogClose asChild>
+              <Button variant="outline" className="mt-4">
+                Fermer
+              </Button>
+            </DialogClose>
+          </DialogContent>
+        </Dialog>
 
         {/* Pagination */}
         {totalPages > 1 && (
