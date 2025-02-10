@@ -1,7 +1,7 @@
 "use client"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/client/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/client/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Film, Tv, ThumbsUp, Star, TrendingUp } from "lucide-react"
 import Image from "next/image"
 

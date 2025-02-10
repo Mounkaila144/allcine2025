@@ -1,8 +1,8 @@
 "use client"
 
 import { useParams, useRouter } from "next/navigation"
-import { Button } from "@/components/client/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/client/ui/card"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowLeft, Calendar, Tag, ThumbsUp } from "lucide-react"
 
 const news = [

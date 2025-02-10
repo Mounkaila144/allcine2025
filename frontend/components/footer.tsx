@@ -9,7 +9,7 @@ export default function Footer() {
           <div>
             <div className="flex items-center">
               <Film className="h-8 w-8 text-primary" />
-              <span className="ml-2 text-xl font-bold">MediaStore</span>
+              <span className="ml-2 text-xl font-bold">Allciné</span>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
               Votre destination pour les films, séries et produits informatiques de qualité.
@@ -71,7 +71,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 mr-2" />
-                contact@mediastore.fr
+                contact@Allciné.fr
               </li>
             </ul>
           </div>
@@ -79,7 +79,7 @@ export default function Footer() {
         
         <div className="mt-8 pt-8 border-t">
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} MediaStore. Tous droits réservés.
+            © {new Date().getFullYear()} Allciné. Tous droits réservés.
           </p>
         </div>
       </div>

@@ -1,4 +1,3 @@
-
 // hooks/useAuth.ts
 "use client";
 import { useEffect } from "react";
@@ -12,38 +11,11 @@ export function useAuth() {
     const { isAuthenticated, token, user } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
-        // Debug logs
-        console.log("Auth State:", {
-            isAuthenticated,
-            hasToken: !!token,
-            userRole: user?.role,
-            currentPath: pathname
-        });
-
-        // Si l'utilisateur est connecté et sur la route racine
-        if (isAuthenticated && token && pathname === '/') {
-            router.push('/client');
-            return;
+        if (pathname.startsWith('/dashboard') && (!isAuthenticated || user?.role !== 'admin')) {
+            toast.error("Accès non autorisé");
+            router.replace('/client/login');
         }
-
-        // Protection uniquement de la route dashboard
-        if (pathname.startsWith('/dashboard')) {
-            if (!isAuthenticated || !token) {
-                console.log("User not authenticated, redirecting to client page...");
-                router.push('/client');
-                toast.error("Veuillez vous connecter pour accéder au tableau de bord");
-                return;
-            }
-
-            if (user?.role !== 'admin') {
-                console.log("Non-admin trying to access dashboard, redirecting...");
-                router.push('/client');
-                toast.error("Accès non autorisé");
-                return;
-            }
-        }
-
-    }, [isAuthenticated, token, user, router, pathname]);
+    }, [isAuthenticated, user, pathname]);
 
     return { isAuthenticated, token, user };
 }

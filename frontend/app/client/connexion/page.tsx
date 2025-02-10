@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/client/ui/button"
-import { Input } from "@/components/client/ui/input"
-import { Label } from "@/components/client/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/client/ui/tabs"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/client/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { LogIn, UserPlus, Phone } from "lucide-react"
 
 export default function Connexion() {

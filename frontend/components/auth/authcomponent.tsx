@@ -1,10 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "@/components/client/ui/button";
-import { Input } from "@/components/client/ui/input";
-import { Label } from "@/components/client/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/client/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/client/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {LogIn, UserPlus, Phone, Lock, ChevronsUpDown, RotateCw} from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useLoginMutation, useRegisterMutation, useVerifyOTPMutation,useRequestPasswordResetMutation, useResendOTPMutation ,useResetPasswordMutation } from "@/lib/redux/api/authApi";
@@ -54,11 +54,11 @@ export default function AuthComponent() {
                 password
             }).unwrap();
 
-            // Vérifier si la réponse contient les données attendues
             if (!response || !response.token || !response.user) {
                 throw new Error('Réponse invalide du serveur');
             }
 
+            // Mettre à jour le state Redux
             dispatch(
                 setCredentials({
                     token: response.token,
@@ -66,33 +66,24 @@ export default function AuthComponent() {
                 })
             );
 
+            // Stocker le token
             localStorage.setItem("token", response.token);
-            console.log('Login response:', response);
 
-            // Créer une promesse pour le toast
-            await new Promise((resolve) => {
-                toast.success("Connexion réussie", {
-                    duration: 2000,
-                    onAutoClose: () => resolve(true),
-                });
-            });
+            // Afficher le toast
+            toast.success("Connexion réussie");
 
-            // Attendre un court instant après le toast
-            await new Promise(resolve => setTimeout(resolve, 500));
-
-            // Redirection après le délai
-            if (response.user.role === 'admin') {
-                router.push("/dashboard");
-            } else {
-                router.push("/client");
-            }
+            // Attendre que le state soit mis à jour avant la redirection
+            setTimeout(() => {
+                if (response.user.role === 'admin') {
+                    window.location.href = "/dashboard";
+                } else {
+                    window.location.href = "/client";
+                }
+            }, 500);
 
         } catch (error) {
             console.error("Erreur de connexion:", error);
             toast.error(error.data?.message || "Une erreur est survenue");
-            // Vider le localStorage après une échec de connexion
-            localStorage.removeItem("token");
-
         }
     };    const handleRegister = async (e) => {
         e.preventDefault();

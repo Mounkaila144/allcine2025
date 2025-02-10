@@ -6,23 +6,22 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useLogoutMutation } from '@/lib/redux/api/authApi';
 import { routes } from './routes';
+import { logout } from "@/lib/redux/slices/authSlice";
+import {toast} from "sonner";
+import {useAppDispatch} from "@/lib/redux/hooks";
+
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [logout] = useLogoutMutation();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
-  const handleLogout = async () => {
-    try {
-      await logout().unwrap();
-      localStorage.removeItem('token');
-      localStorage.removeItem('tenant_id');
-      router.push('/');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
+  const handleLogout = () => {
+    dispatch(logout());
+    toast.success("Déconnexion réussie");
+    router.push('/');
+
   };
 
   return (

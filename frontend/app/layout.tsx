@@ -1,35 +1,32 @@
-"use client";
+// app/layout.tsx
 import './globals.css';
 import { Inter } from 'next/font/google';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/sonner';
 import { Providers } from './providers';
-import {DebugAuth} from "@/components/auth/DebugAuth";
+import { Toaster } from '@/components/ui/sonner';
+import { DebugAuth } from "@/components/auth/DebugAuth";
+import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const metadata: Metadata = {
+  title: 'Allciné - Films, Séries et Produits Tech',
+  description: 'Votre destination pour les films, séries et produits informatiques',
+};
+
 export default function RootLayout({
-  children,
-}: {
+                                     children,
+                                   }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+      <html lang="fr" suppressHydrationWarning>
       <body className={inter.className}>
-        <Providers>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            storageKey="theme"
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster />
-            <DebugAuth />
-          </ThemeProvider>
-        </Providers>
+      <Providers>
+        {children}
+        <Toaster />
+        <DebugAuth />
+      </Providers>
       </body>
-    </html>
+      </html>
   );
 }

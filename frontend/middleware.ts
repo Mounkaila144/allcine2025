@@ -7,27 +7,29 @@ const protectedRoutes = ['/dashboard'];
 
 export function middleware(request: NextRequest) {
     const path = request.nextUrl.pathname;
-
-    // Récupérer les tokens et le rôle depuis les cookies
     const token = request.cookies.get('token')?.value;
     const role = request.cookies.get('role')?.value;
 
-    // Fonction pour vérifier si le chemin commence par un préfixe
-    const pathStartsWith = (prefix: string) => path === prefix || path.startsWith(`${prefix}/`);
+    // Pour la page de login
+    if (path === '/client/login') {
+        if (token) {
+            return NextResponse.redirect(new URL(
+                role === 'admin' ? '/dashboard' : '/client',
+                request.url
+            ));
+        }
+        return NextResponse.next();
+    }
 
-
-    // Si l'utilisateur tente d'accéder au dashboard
-    if (pathStartsWith('/dashboard')) {
-        // Vérifier si l'utilisateur est authentifié et est admin
+    // Pour le dashboard
+    if (path.startsWith('/dashboard')) {
         if (!token || role !== 'admin') {
-            return NextResponse.redirect(new URL('/client', request.url));
+            return NextResponse.redirect(new URL('/client/login', request.url));
         }
     }
 
-    // Permettre l'accès à toutes les autres routes
     return NextResponse.next();
 }
-
 export const config = {
     matcher: [
         /*

@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { Film, Newspaper, List, Tag as PriceTag, ThumbsUp, BookOpen, Gift, LogIn, LogOut, Menu, X } from "lucide-react";
-import { Button } from "@/components/client/ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { ModeToggle } from "@/components/client/mode-toggle";
+import { ModeToggle } from "@/components/mode-toggle";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { logout } from "@/lib/redux/slices/authSlice";
 import { useRouter } from "next/navigation"; //  Correct, but not strictly necessary in this component
@@ -68,7 +68,7 @@ export default function Navbar() {
                     <div className="flex">
                         <Link href="/client" className="flex items-center">
                             <Film className="h-8 w-8 text-primary" />
-                            <span className="ml-2 text-xl font-bold">MediaStore</span>
+                            <span className="ml-2 text-xl font-bold">Allciné</span>
                         </Link>
                     </div>
 

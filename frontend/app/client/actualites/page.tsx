@@ -1,16 +1,16 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/client/ui/button"
-import { Input } from "@/components/client/ui/input"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/client/ui/select"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/client/ui/card"
+} from "@/components/ui/select"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Film, Tv, Monitor, Search, ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 
