@@ -54,7 +54,7 @@ export default function ClientHome() {
         {/* Hero Section */}
         <section className="relative h-[600px]">
           <Image
-              src="/images/hero-bg.jpg" // Déplacez l'image en local
+              src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-1.2.1&auto=format&fit=crop&w=2850&q=80"
               alt="Hero background"
               fill
               priority

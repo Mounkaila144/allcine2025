@@ -45,20 +45,30 @@ export default function AuthComponent() {
     const dispatch = useAppDispatch();
     const router = useRouter();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
+    const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault(); // Empêche la soumission native du formulaire
+
+        // Log pour déboguer
+        console.log('Début de la tentative de connexion');
+
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
+            console.log('Tentative de connexion avec:', { phone: fullPhoneNumber });
+
             const response = await login({
                 phone: fullPhoneNumber,
                 password
             }).unwrap();
 
+            // Log de la réponse
+            console.log('Réponse de connexion:', response);
+
             if (!response || !response.token || !response.user) {
+                console.error('Réponse invalide:', response);
                 throw new Error('Réponse invalide du serveur');
             }
 
-            // Mettre à jour le state Redux
+            // Dispatch synchrone
             dispatch(
                 setCredentials({
                     token: response.token,
@@ -66,24 +76,32 @@ export default function AuthComponent() {
                 })
             );
 
-            // Stocker le token
+            // Stockage synchrone
             localStorage.setItem("token", response.token);
 
-            // Afficher le toast
-            toast.success("Connexion réussie");
+            // Toast avec promesse
+            toast.success("Connexion réussie", {
+                duration: 2000,
+            });
 
-            // Attendre que le state soit mis à jour avant la redirection
-            setTimeout(() => {
-                if (response.user.role === 'admin') {
-                    window.location.href = "/dashboard";
-                } else {
-                    window.location.href = "/client";
-                }
-            }, 500);
+            // Attendre que tout soit bien mis à jour
+            await new Promise(resolve => setTimeout(resolve, 1000));
 
-        } catch (error) {
-            console.error("Erreur de connexion:", error);
-            toast.error(error.data?.message || "Une erreur est survenue");
+            // Redirection basée sur le rôle
+            const redirectPath = response.user.role === 'admin' ? '/dashboard' : '/client';
+if (response.user.role){
+    router.replace(redirectPath);
+}
+
+
+        } catch (error: any) {
+            // Log détaillé de l'erreur
+            console.error("Erreur complète:", error);
+            console.error("Message d'erreur:", error.data?.message);
+            console.error("Stack trace:", error.stack);
+
+            toast.error(error.data?.message || "Une erreur est survenue lors de la connexion");
+            localStorage.removeItem("token");
         }
     };    const handleRegister = async (e) => {
         e.preventDefault();
