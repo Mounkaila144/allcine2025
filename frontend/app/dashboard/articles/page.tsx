@@ -47,7 +47,7 @@ export default function ArticlesPage() {
 
     const queryFilters = {
         ...(search && { search }),
-        ...(categoryId !== 'all' && { categoryId: Number(categoryId) }),
+        ...(categoryId !== 'all' && { categoryId }),
         ...(minPrice !== undefined && { minPrice }),
         ...(maxPrice !== undefined && { maxPrice }),
         ...(sortBy && { sortBy }),
@@ -55,7 +55,6 @@ export default function ArticlesPage() {
         page: currentPage,
         limit: pageSize
     };
-
 
     // Hooks d'API
     const { data, isLoading: isLoadingArticles } = useGetArticlesQuery(queryFilters);
