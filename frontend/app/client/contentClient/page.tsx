@@ -51,8 +51,9 @@ export default function ContentClient() {
 
   const { data, isLoading, error } = useGetContentsQuery(queryFilters)
   const contents = data?.contents || []
-  const totalItems = data?.totalItems || 0
-  const totalPages = data?.totalPages || 0
+  const totalItems = data?.pagination?.totalItems || 0
+  const totalPages = data?.pagination?.totalPages || 0
+
 
   const sortedContents = [...contents].sort((a, b) => {
     if (sortBy === "rating") return (b.average_rating || 0) - (a.average_rating || 0)
