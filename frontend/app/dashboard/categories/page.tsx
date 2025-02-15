@@ -40,7 +40,7 @@ export default function CategoriesPage() {
   };
 
   const { data: { categories = [], pagination } = {}, isLoading: isLoadingCategories } = useGetCategoriesQuery(queryFilters);
-  const { data: { articles = [] } = {} } = useGetArticlesQuery({});
+  const { data: { articles = [] } = {} } = useGetArticlesQuery();
   const [createCategory] = useCreateCategoryMutation();
   const [updateCategory] = useUpdateCategoryMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
