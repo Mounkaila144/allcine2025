@@ -9,7 +9,7 @@ import Link from "next/link";
 
 const FEATURED_ITEMS = [
   {
-    title: "Nouveaux Films",
+    title: "Nouveaux Films test",
     description: "Découvrez les dernières sorties cinéma",
     image: "/images/movies.jpg" // Déplacez les images en local
   },
