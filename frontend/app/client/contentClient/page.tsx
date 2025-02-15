@@ -21,6 +21,7 @@ import {
   DialogDescription,
   DialogClose
 } from "@/components/ui/dialog"
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const ITEMS_PER_PAGE = 10
 
@@ -92,7 +93,7 @@ export default function ContentClient() {
   }
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-64">Chargement...</div>
+    return <LoadingSpinner />
   }
 
   if (error) {

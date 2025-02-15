@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { ShoppingBag, TrendingUp, DollarSign, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { useGetOrdersQuery, useUpdateOrderStatusMutation, Order } from '@/lib/redux/api/ordersApi';
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const statusColors: Record<string, { bg: string; text: string; hoverBg: string }> = {
   en_attente: { bg: 'bg-yellow-500/20', text: 'text-yellow-500', hoverBg: 'hover:bg-yellow-500/30' },
@@ -77,7 +78,7 @@ export default function OrdersPage() {
     }
   ], [handleStatusChange]);
 
-  if (isLoading) return <div className="flex items-center justify-center h-screen text-white">Chargement...</div>;
+  if (isLoading) return <LoadingSpinner />;
 
   return (
       <div className="space-y-6">

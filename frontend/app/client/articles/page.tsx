@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useState } from "react"
 import Image from "next/image"
 import { useGetArticlesQuery } from '@/lib/redux/api/articleApi'
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function Articles() {
     const [searchTerm, setSearchTerm] = useState("")
@@ -24,7 +25,7 @@ export default function Articles() {
     const articles = data?.articles || []
 
     if (isLoading) {
-        return <div className="flex items-center justify-center h-screen">Chargement...</div>
+        return <LoadingSpinner />
     }
 
     return (

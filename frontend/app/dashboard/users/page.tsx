@@ -14,6 +14,7 @@ import {
   useDeleteUserMutation,
   User
 } from '@/lib/redux/api/userApi';
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const roleColors: Record<string, { bg: string; text: string }> = {
   admin: { bg: 'bg-purple-500/20', text: 'text-purple-500' },
@@ -155,7 +156,7 @@ export default function UsersPage() {
     }
   ];
 
-  if (isLoading) return <div>Chargement...</div>;
+  if (isLoading) return <LoadingSpinner />;
 
   return (
       <div className="space-y-6">

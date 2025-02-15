@@ -23,7 +23,15 @@
   --input: 217.2 32.6% 17.5%;
   --ring: 224.3 76.3% 48%;
 }
+@keyframes spin-slow {
+  to {
+    transform: rotate(-360deg);
+  }
+}
 
+.animate-spin-slow {
+  animation: spin-slow 1.5s linear infinite;
+}
 .dark {
   --background: 222 47% 11%;
   --foreground: 214 32% 91%;

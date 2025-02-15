@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchTMDBData } from "@/lib/tmdb";
 import { fetchMangaData } from "@/lib/jikan";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function ContentForm({ onSubmit, initialData, onCancel, readOnly = false }) {
     const [formData, setFormData] = useState(initialData);
@@ -167,9 +168,7 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
 
                 {/* Suggestions (affichées en mode édition uniquement) */}
                 {!readOnly && isLoadingSuggestions && (
-                    <div className="absolute z-10 w-full mt-1 bg-blue-950 border border-blue-900/30 rounded-md p-2">
-                        Chargement...
-                    </div>
+                    <LoadingSpinner />
                 )}
                 {!readOnly && suggestions.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-blue-950 border border-blue-900/30 rounded-md max-h-80 overflow-y-auto">

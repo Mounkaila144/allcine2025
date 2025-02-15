@@ -13,6 +13,7 @@ export function middleware(request: NextRequest) {
     // Pour la page de login
     if (path === '/client/login') {
         if (token) {
+            console.log(token)
             return NextResponse.redirect(new URL(
                 role === 'admin' ? '/dashboard' : '/client',
                 request.url

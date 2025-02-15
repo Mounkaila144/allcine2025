@@ -19,6 +19,7 @@ import {
     type Article,
     type CreateArticleDto,
 } from '@/lib/redux/api/articleApi';
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const defaultFormData: CreateArticleDto = {
     titre: '',
@@ -246,7 +247,7 @@ export default function ArticlesPage() {
 
 
     if (isLoadingArticles || isLoadingCategories) {
-        return <div className="flex items-center justify-center h-screen text-white">Chargement...</div>;
+        return <LoadingSpinner />;
     }
 
     return (

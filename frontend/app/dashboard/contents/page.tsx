@@ -17,6 +17,7 @@ import {
     type Content as ContentType,
     type CreateContentDto
 } from '@/lib/redux/api/contentsApi';
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 // Define interfaces
 export interface Content extends ContentType {}
@@ -178,7 +179,7 @@ export default function ContentsPage() {
         }
     ];
 
-    if (isLoading) return <div>Chargement...</div>;
+    if (isLoading) return <LoadingSpinner />;
 
     return (
         <div className="space-y-6">

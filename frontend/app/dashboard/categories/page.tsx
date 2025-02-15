@@ -19,6 +19,7 @@ import {
 } from '@/lib/redux/api/categoryApi';
 import { Badge } from '@/components/ui/badge';
 import { useGetArticlesQuery } from '@/lib/redux/api/articleApi';
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 const defaultFormData: CreateCategoryDto = {
   nom: ''
@@ -139,7 +140,7 @@ export default function CategoriesPage() {
     }
   ];
 
-  if (isLoadingCategories) return <div>Chargement...</div>;
+  if (isLoadingCategories) return <LoadingSpinner />;
 
   return (
       <div className="space-y-6">

@@ -5,21 +5,27 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from '@/lib/redux/store';
 import { ThemeProvider } from "@/components/theme-provider";
-
-function LoadingSpinner() {
-    return (
-        <div className="h-screen w-screen flex items-center justify-center">
-            <h1>loading</h1>
-        </div>
-    );
-}
+import LoadingSpinner from "@/components/LoadingSpinner";
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export function Providers({ children }: { children: React.ReactNode }) {
     const [isClient, setIsClient] = useState(false);
+    const [isPageLoading, setIsPageLoading] = useState(false);
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
     useEffect(() => {
         setIsClient(true);
     }, []);
+
+    useEffect(() => {
+        setIsPageLoading(true);
+        const timeout = setTimeout(() => {
+            setIsPageLoading(false);
+        }, 500); // Minimum display time for the spinner
+
+        return () => clearTimeout(timeout);
+    }, [pathname, searchParams]);
 
     if (!isClient) {
         return <LoadingSpinner />;
@@ -35,7 +41,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     storageKey="theme"
                     disableTransitionOnChange
                 >
-                    {children}
+                    {isPageLoading ? <LoadingSpinner /> : children}
                 </ThemeProvider>
             </PersistGate>
         </Provider>

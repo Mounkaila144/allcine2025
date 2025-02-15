@@ -8,6 +8,7 @@ import { Users, ShoppingBag, Star, Film, Tv, BookOpen, Monitor, BarChart } from 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Skeleton } from "@/components/ui/skeleton";
 import {useGetDashboardStatsQuery} from "@/lib/redux/api/dashboardApi";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface StatCard {
     title: string;
@@ -62,7 +63,7 @@ export default function DashboardPage() {
                 <h1 className="text-3xl font-bold text-white mb-2">Vue d'ensemble des statistiques</h1>
                 <p className="text-blue-100/60">
                     Aperçu des principales activités et interactions des utilisateurs
-                    {isLoading && " (Chargement...)"}
+                    {isLoading && <LoadingSpinner />}
                 </p>
             </div>
 
