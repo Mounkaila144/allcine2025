@@ -12,50 +12,28 @@ import { useAppDispatch } from "@/lib/redux/hooks";
 import { setCredentials } from "@/lib/redux/slices/authSlice";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-
-
-// Types
-interface Country {
-    name: string;
-    code: string;
-}
-
-interface User {
-    id: string;
-    email: string;
-    role: string;
-}
-
-const countryCodes: Country[] = [
-    { name: "Niger", code: "+227" },
-    // Add other country codes as needed
-];
+import countryCodes from "@/lib/countryCodes";
 
 export default function AuthComponent() {
-    // State management with proper typing
-    const [search, setSearch] = useState<string>("");
-    const [selectedCountry, setSelectedCountry] = useState<Country>({
+    const [search, setSearch] = useState("");
+    const [selectedCountry, setSelectedCountry] = useState({
         name: "Niger",
         code: "+227",
     });
-    const [phone, setPhone] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [nom, setNom] = useState<string>("");
-    const [prenom, setPrenom] = useState<string>("");
-    const [showOtpVerification, setShowOtpVerification] = useState<boolean>(false);
-    const [otpCode, setOtpCode] = useState<string>("");
-    const [showPasswordReset, setShowPasswordReset] = useState<boolean>(false);
-    const [isResendingOTP, setIsResendingOTP] = useState<boolean>(false);
-    const [resendCooldown, setResendCooldown] = useState<number>(0);
-    const [newPassword, setNewPassword] = useState<string>("");
-    const [showResetForm, setShowResetForm] = useState<boolean>(false);
-    const [resetOTP, setResetOTP] = useState<string>("");
+    const [phone, setPhone] = useState("");
+    const [password, setPassword] = useState("");
+    const [nom, setNom] = useState("");
+    const [prenom, setPrenom] = useState("");
+    const [showOtpVerification, setShowOtpVerification] = useState(false);
+    const [otpCode, setOtpCode] = useState("");
+    const [showPasswordReset, setShowPasswordReset] = useState(false);
+    const [isResendingOTP, setIsResendingOTP] = useState(false);
+    const [resendCooldown, setResendCooldown] = useState(0);
+    const [newPassword, setNewPassword] = useState("");
+    const [showResetForm, setShowResetForm] = useState(false);
+    const [resetOTP, setResetOTP] = useState("");
 
-    // Redux hooks
-    const dispatch = useAppDispatch();
-    const router = useRouter();
 
-    // RTK Query hooks
     const [login, { isLoading: isLoginLoading }] = useLoginMutation();
     const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
     const [verifyOTP, { isLoading: isVerifyingOTP }] = useVerifyOTPMutation();
@@ -63,37 +41,69 @@ export default function AuthComponent() {
     const [resendOTP] = useResendOTPMutation();
     const [resetPassword] = useResetPasswordMutation();
 
+
+    const dispatch = useAppDispatch();
+    const router = useRouter();
+
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+        e.preventDefault(); // Empêche la soumission native du formulaire
+
+        // Log pour déboguer
+        console.log('Début de la tentative de connexion');
+
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
+            console.log('Tentative de connexion avec:', { phone: fullPhoneNumber });
+
             const response = await login({
                 phone: fullPhoneNumber,
                 password
             }).unwrap();
 
-            if (response && response.token && response.user) {
-                dispatch(setCredentials({
-                    user: response.user,
-                    token: response.token,
-                    isAuthenticated: true
-                }));
+            // Log de la réponse
+            console.log('Réponse de connexion:', response);
 
-                toast.success("Connexion réussie");
-
-                // Redirection based on role
-                if (response.user.role) {
-                    const redirectPath = response.user.role === 'admin' ? '/dashboard' : '/client';
-                    router.replace(redirectPath);
-                }
+            if (!response || !response.token || !response.user) {
+                console.error('Réponse invalide:', response);
+                throw new Error('Réponse invalide du serveur');
             }
+
+            // Dispatch synchrone
+            dispatch(
+                setCredentials({
+                    token: response.token,
+                    user: response.user,
+                })
+            );
+
+            // Stockage synchrone
+            localStorage.setItem("token", response.token);
+
+            // Toast avec promesse
+            toast.success("Connexion réussie", {
+                duration: 2000,
+            });
+
+            // Attendre que tout soit bien mis à jour
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Redirection basée sur le rôle
+            const redirectPath = response.user.role === 'admin' ? '/dashboard' : '/client';
+if (response.user.role){
+    router.replace(redirectPath);
+}
+
+
         } catch (error: any) {
+            // Log détaillé de l'erreur
+            console.error("Erreur complète:", error);
+            console.error("Message d'erreur:", error.data?.message);
+            console.error("Stack trace:", error.stack);
+
             toast.error(error.data?.message || "Une erreur est survenue lors de la connexion");
             localStorage.removeItem("token");
         }
-    };
-
-    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+    };    const handleRegister = async (e) => {
         e.preventDefault();
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
@@ -106,12 +116,14 @@ export default function AuthComponent() {
 
             toast.success(response.message || "Un code de vérification a été envoyé sur WhatsApp");
             setShowOtpVerification(true);
-        } catch (error: any) {
+        } catch (error) {
+            console.error("Erreur d'inscription:", error);
             toast.error(error.data?.message || "Une erreur est survenue");
+
         }
     };
 
-    const handleVerifyOTP = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleVerifyOTP = async (e) => {
         e.preventDefault();
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
@@ -122,14 +134,15 @@ export default function AuthComponent() {
 
             toast.success("Compte vérifié avec succès!");
             setShowOtpVerification(false);
+            // Rediriger vers la page de connexion
             router.push("/client/login");
-        } catch (error: any) {
+        } catch (error) {
+            console.error("Erreur de vérification:", error);
             toast.error(error.data?.message || "Code de vérification incorrect");
         }
     };
-
     const startResendCooldown = () => {
-        setResendCooldown(60);
+        setResendCooldown(60); // 60 secondes de cooldown
         const timer = setInterval(() => {
             setResendCooldown((prev) => {
                 if (prev <= 1) {
@@ -140,7 +153,6 @@ export default function AuthComponent() {
             });
         }, 1000);
     };
-
     const handleResendOTP = async () => {
         if (resendCooldown > 0) return;
 
@@ -150,25 +162,22 @@ export default function AuthComponent() {
             await resendOTP({ phone: fullPhoneNumber }).unwrap();
             toast.success("Un nouveau code de vérification a été envoyé");
             startResendCooldown();
-        } catch (error: any) {
+        } catch (error) {
             toast.error(error.data?.message || "Erreur lors du renvoi du code");
         }
         setIsResendingOTP(false);
     };
-
-    const handleRequestPasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleRequestPasswordReset = async (e) => {
         e.preventDefault();
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
             await requestPasswordReset({ phone: fullPhoneNumber }).unwrap();
             toast.success("Un code de réinitialisation a été envoyé sur votre WhatsApp");
-            setShowResetForm(true);
-        } catch (error: any) {
+            setShowResetForm(true); // Modifié ici
+        } catch (error) {
             toast.error(error.data?.message || "Erreur lors de la demande de réinitialisation");
         }
-    };
-
-    const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    };    const handleResetPassword = async (e) => {
         e.preventDefault();
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
@@ -181,22 +190,11 @@ export default function AuthComponent() {
             toast.success("Mot de passe réinitialisé avec succès");
             setShowPasswordReset(false);
             setShowResetForm(false);
-        } catch (error: any) {
+        } catch (error) {
             toast.error(error.data?.message || "Erreur lors de la réinitialisation");
         }
     };
-
-    const PhoneInputWithCountry = ({
-                                       value,
-                                       onChange,
-                                       id,
-                                       required = false
-                                   }: {
-        value: string;
-        onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-        id: string;
-        required?: boolean;
-    }) => (
+    const PhoneInputWithCountry = ({ value, onChange, id, required = false }) => (
         <div className="flex items-center gap-2">
             <Popover>
                 <PopoverTrigger className="flex items-center px-3 py-2 border rounded-lg w-28 bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white">
@@ -204,10 +202,10 @@ export default function AuthComponent() {
                     <ChevronsUpDown className="w-4 h-4 ml-2" />
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg">
-                    <Input
+                    <input
                         type="text"
                         placeholder="Rechercher un pays..."
-                        className="w-full mb-2"
+                        className="w-full px-3 py-2 border rounded-lg mb-2 bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-gray-900 dark:text-white"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />

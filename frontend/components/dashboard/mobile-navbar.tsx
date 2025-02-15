@@ -67,7 +67,7 @@ export function MobileNavbar() {
                                         : 'text-blue-100/80 hover:text-white hover:bg-blue-500/10'
                                 )}
                             >
-                                <route.icon  />
+                                <route.icon className="h-5 w-5 mr-3" />
                                 {route.label}
                             </Link>
                         ))}
