@@ -80,8 +80,9 @@ export default function UsersPage() {
       nom: user.nom,
       prenom: user.prenom,
       phone: user.phone,
-      role: user.role,
+      role: user.role === 'admin' ? 'client' : user.role, // conversion ou vérification
     });
+
     setIsDialogOpen(true);
   };
 
@@ -174,7 +175,7 @@ export default function UsersPage() {
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-white">Rôles Disponibles</h3>
-                <p className="text-sm text-blue-100/60">2 niveaux d'accès</p>
+                <p className="text-sm text-blue-100/60">2 niveaux daccès</p>
               </div>
             </div>
             <div className="mt-4 space-y-2">
@@ -222,7 +223,7 @@ export default function UsersPage() {
           <DialogContent className="glass-effect border-blue-900/20">
             <DialogHeader>
               <DialogTitle className="text-lg font-bold text-white">
-                Modifier l'Utilisateur
+                Modifier l Utilisateur
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">

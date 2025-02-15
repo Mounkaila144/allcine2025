@@ -2,10 +2,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface User {
-  id: string;
-  email: string;
+  id?: number;
+  email?: string;
   role: string;
-  // Ajoutez d'autres propriétés utilisateur si nécessaire
 }
 
 interface AuthState {
