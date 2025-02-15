@@ -13,12 +13,14 @@ export default function Connexion() {
   const [nom, setNom] = useState("")
   const [prenom, setPrenom] = useState("")
 
-  const handleLogin = () => {
+  const handleLogin = (e) => {
+    e.preventDefault()
     // Logique de connexion à implémenter
     console.log("Connexion:", { whatsapp })
   }
 
-  const handleRegister = () => {
+  const handleRegister = (e) => {
+    e.preventDefault()
     // Logique d'inscription à implémenter
     console.log("Inscription:", { whatsapp, nom, prenom })
   }
