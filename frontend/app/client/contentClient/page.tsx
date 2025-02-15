@@ -12,7 +12,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Film, Tv, Book, Search, ChevronLeft, ChevronRight, X } from "lucide-react"
 import Image from "next/image"
-import { useGetContentsQuery } from '@/lib/redux/api/contentsApi'
+import {Content, useGetContentsQuery } from '@/lib/redux/api/contentsApi'
 import {
   Dialog,
   DialogContent,
@@ -31,7 +31,7 @@ export default function ContentClient() {
   const [currentPage, setCurrentPage] = useState(1)
   const [sortBy, setSortBy] = useState("titre")
   const [isMobile, setIsMobile] = useState(false)
-  const [selectedContent, setSelectedContent] = useState(null)
+  const [selectedContent, setSelectedContent] = useState<Content | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
@@ -60,10 +60,11 @@ export default function ContentClient() {
     return a.titre.localeCompare(b.titre)
   })
 
-  const handleOpenModal = (content) => {
+  const handleOpenModal = (content: Content) => {
     setSelectedContent(content)
     setIsModalOpen(true)
   }
+
 
   const getVisiblePageNumbers = () => {
     if (!totalPages) return []
