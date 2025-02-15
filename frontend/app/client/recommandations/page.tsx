@@ -5,16 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Film, Tv, ThumbsUp, Star, TrendingUp } from "lucide-react"
 import Image from "next/image"
 
-interface RecommendationItem {
-  id: number;
-  title: string;
-  image: string;
-  genre: string;
-  rating: number;
-  reason: string;
-}
-
-const recommendations: { [key: string]: RecommendationItem[] } = {
+const recommendations = {
   films: [
     {
       id: 1,
@@ -96,7 +87,7 @@ export default function Recommandations() {
   )
 }
 
-function RecommendationCard({ item }: { item: RecommendationItem }) {
+function RecommendationCard({ item }) {
   return (
       <Card className="overflow-hidden">
         <div className="relative h-48">
