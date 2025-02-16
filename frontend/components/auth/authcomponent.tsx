@@ -12,6 +12,7 @@ import { setCredentials } from "@/lib/redux/slices/authSlice";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import PhoneInputWithCountry from "@/components/auth/PhoneInputWithCountry";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 export default function AuthComponent() {
     const [search, setSearch] = useState("");
@@ -36,38 +37,30 @@ export default function AuthComponent() {
     const [login, { isLoading: isLoginLoading }] = useLoginMutation();
     const [register, { isLoading: isRegisterLoading }] = useRegisterMutation();
     const [verifyOTP, { isLoading: isVerifyingOTP }] = useVerifyOTPMutation();
-    const [requestPasswordReset] = useRequestPasswordResetMutation();
-    const [resendOTP] = useResendOTPMutation();
-    const [resetPassword] = useResetPasswordMutation();
+    const [requestPasswordReset, { isLoading: isRequestPasswordResetLoading }] = useRequestPasswordResetMutation();  // Add isLoading
+    const [resendOTP, { isLoading: isResendOTPLoading }] = useResendOTPMutation(); // Add isLoading
+    const [resetPassword, { isLoading: isResetPasswordLoading }] = useResetPasswordMutation(); // Add isLoading
 
 
     const dispatch = useAppDispatch();
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault(); // Empêche la soumission native du formulaire
-
-        // Log pour déboguer
-        console.log('Début de la tentative de connexion');
+        e.preventDefault();
 
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
-            console.log('Tentative de connexion avec:', { phone: fullPhoneNumber });
 
             const response = await login({
                 phone: fullPhoneNumber,
                 password
             }).unwrap();
 
-            // Log de la réponse
-            console.log('Réponse de connexion:', response);
 
             if (!response || !response.token || !response.user) {
-                console.error('Réponse invalide:', response);
                 throw new Error('Réponse invalide du serveur');
             }
 
-            // Dispatch synchrone
             dispatch(
                 setCredentials({
                     token: response.token,
@@ -75,34 +68,27 @@ export default function AuthComponent() {
                 })
             );
 
-            // Stockage synchrone
             localStorage.setItem("token", response.token);
 
-            // Toast avec promesse
             toast.success("Connexion réussie", {
                 duration: 2000,
             });
 
-            // Attendre que tout soit bien mis à jour
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Redirection basée sur le rôle
             const redirectPath = response.user.role === 'admin' ? '/dashboard' : '/client';
-if (response.user.role){
-    router.replace(redirectPath);
-}
+            if (response.user.role) {
+                router.replace(redirectPath);
+            }
 
 
         } catch (error: any) {
-            // Log détaillé de l'erreur
-            console.error("Erreur complète:", error);
-            console.error("Message d'erreur:", error.data?.message);
-            console.error("Stack trace:", error.stack);
+
 
             toast.error(error.data?.message || "Une erreur est survenue lors de la connexion");
             localStorage.removeItem("token");
         }
-    };    const handleRegister = async (e) => {
+    };
+
+    const handleRegister = async (e) => {
         e.preventDefault();
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
@@ -116,7 +102,6 @@ if (response.user.role){
             toast.success(response.message || "Un code de vérification a été envoyé sur WhatsApp");
             setShowOtpVerification(true);
         } catch (error) {
-            console.error("Erreur d'inscription:", error);
             toast.error(error.data?.message || "Une erreur est survenue");
 
         }
@@ -133,15 +118,14 @@ if (response.user.role){
 
             toast.success("Compte vérifié avec succès!");
             setShowOtpVerification(false);
-            // Rediriger vers la page de connexion
             router.push("/client/login");
         } catch (error) {
-            console.error("Erreur de vérification:", error);
             toast.error(error.data?.message || "Code de vérification incorrect");
         }
     };
+
     const startResendCooldown = () => {
-        setResendCooldown(60); // 60 secondes de cooldown
+        setResendCooldown(60);
         const timer = setInterval(() => {
             setResendCooldown((prev) => {
                 if (prev <= 1) {
@@ -152,6 +136,7 @@ if (response.user.role){
             });
         }, 1000);
     };
+
     const handleResendOTP = async () => {
         if (resendCooldown > 0) return;
 
@@ -163,20 +148,24 @@ if (response.user.role){
             startResendCooldown();
         } catch (error) {
             toast.error(error.data?.message || "Erreur lors du renvoi du code");
+        } finally {
+            setIsResendingOTP(false); // Reset isResendingOTP regardless of success or failure
         }
-        setIsResendingOTP(false);
     };
+
     const handleRequestPasswordReset = async (e) => {
         e.preventDefault();
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
             await requestPasswordReset({ phone: fullPhoneNumber }).unwrap();
             toast.success("Un code de réinitialisation a été envoyé sur votre WhatsApp");
-            setShowResetForm(true); // Modifié ici
+            setShowResetForm(true);
         } catch (error) {
             toast.error(error.data?.message || "Erreur lors de la demande de réinitialisation");
         }
-    };    const handleResetPassword = async (e) => {
+    };
+
+    const handleResetPassword = async (e) => {
         e.preventDefault();
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
@@ -193,6 +182,7 @@ if (response.user.role){
             toast.error(error.data?.message || "Erreur lors de la réinitialisation");
         }
     };
+
     return (
         <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-900">
             <Card className="w-full max-w-md">
@@ -219,21 +209,20 @@ if (response.user.role){
                                 />
                             </div>
                             <Button type="submit" className="w-full" disabled={isVerifyingOTP}>
-                                {isVerifyingOTP ? "Vérification..." : "Vérifier le code"}
+                                {isVerifyingOTP ? <LoadingSpinner /> : "Vérifier le code"}
                             </Button>
                             <Button
                                 type="button"
                                 variant="outline"
                                 className="w-full mt-2"
                                 onClick={handleResendOTP}
-                                disabled={resendCooldown > 0 || isResendingOTP}
+                                disabled={resendCooldown > 0 || isResendingOTP || isResendOTPLoading}
                             >
                                 {resendCooldown > 0
                                     ? `Renvoyer le code (${resendCooldown}s)`
-                                    : isResendingOTP
-                                        ? "Envoi en cours..."
-                                        : "Renvoyer le code"}
-                                {!resendCooldown && !isResendingOTP && <RotateCw className="w-4 h-4 ml-2" />}
+                                    : isResendingOTPLoading ? <LoadingSpinner />
+                                        :  "Renvoyer le code"}
+                                {!resendCooldown && !isResendingOTP && !isResendOTPLoading  &&<RotateCw className="w-4 h-4 ml-2" />}
                             </Button>
                         </form>
                     ) : showPasswordReset && showResetForm ? (
@@ -264,8 +253,8 @@ if (response.user.role){
                                     />
                                 </div>
                             </div>
-                            <Button type="submit" className="w-full">
-                                Changer le mot de passe
+                            <Button type="submit" className="w-full" disabled={isResetPasswordLoading}>
+                                {isResetPasswordLoading ? <LoadingSpinner /> : "Changer le mot de passe"}
                             </Button>
                             <Button
                                 type="button"
@@ -287,8 +276,8 @@ if (response.user.role){
                                     required
                                 />
                             </div>
-                            <Button type="submit" className="w-full">
-                                Réinitialiser le mot de passe
+                            <Button type="submit" className="w-full" disabled={isRequestPasswordResetLoading}>
+                                {isRequestPasswordResetLoading ? <LoadingSpinner /> :  "Réinitialiser le mot de passe"}
                             </Button>
                             <Button
                                 type="button"
@@ -343,7 +332,7 @@ if (response.user.role){
                                         </div>
                                     </div>
                                     <Button type="submit" className="w-full" disabled={isLoginLoading}>
-                                        {isLoginLoading ? "Connexion..." : "Se connecter"}
+                                        {isLoginLoading ? <LoadingSpinner /> : "Se connecter"}
                                     </Button>
                                     <Button
                                         type="button"
@@ -405,7 +394,7 @@ if (response.user.role){
                                         />
                                     </div>
                                     <Button type="submit" className="w-full" disabled={isRegisterLoading}>
-                                        {isRegisterLoading ? "Inscription..." : "S'inscrire"}
+                                        {isRegisterLoading ?  <LoadingSpinner /> : "S'inscrire"}
                                     </Button>
                                 </form>
                             </TabsContent>

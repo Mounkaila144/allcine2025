@@ -188,17 +188,19 @@ export default function ContentClient() {
         {/* Grille de contenu */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
           {sortedContents.map((item) => (
-              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative h-48">
+              <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow flex flex-col w-full mx-auto">
+                <div className="relative w-full pt-[100%]">
                   {item.image_url ? (
                       <Image
                           src={item.image_url}
                           alt={item.titre}
                           fill
-                          className="object-cover"
+                          className="object-contain p-2"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                          priority
                       />
                   ) : (
-                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
                         Pas d'image
                       </div>
                   )}
@@ -211,22 +213,22 @@ export default function ContentClient() {
                     {item.titre}
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex-1 flex flex-col justify-between">
                   <div className="flex justify-between items-center mb-2">
-                <span className="text-xs text-muted-foreground">
-                  {item.genre} {item.release_date && `(${new Date(item.release_date).getFullYear()})`}
-                </span>
+          <span className="text-xs text-muted-foreground">
+            {item.genre} {item.release_date && `(${new Date(item.release_date).getFullYear()})`}
+          </span>
                     {item.average_rating && (
-                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                    ★ {item.average_rating.toFixed(1)}
-                  </span>
+                        <span className="text-xs bg-primary/10 text-red-500 px-2 py-1 rounded">
+              ★ {item.average_rating.toFixed(1)}
+            </span>
                     )}
                   </div>
                   <div className="flex justify-between items-center">
                     {item.type === "serie" && (
                         <span className="text-xs">
-                    {item.saisons_possedees} saison{item.saisons_possedees > 1 ? 's' : ''}
-                  </span>
+              {item.saisons_possedees} saison{item.saisons_possedees > 1 ? 's' : ''}
+            </span>
                     )}
                     <Button
                         size="sm"
@@ -240,10 +242,9 @@ export default function ContentClient() {
               </Card>
           ))}
         </div>
-
         {/* Modal de détails */}
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 {selectedContent?.type === "film" && <Film className="h-4 w-4" />}
@@ -254,12 +255,14 @@ export default function ContentClient() {
             </DialogHeader>
             <div className="grid gap-4">
               {selectedContent?.image_url && (
-                  <div className="relative h-48 w-full">
+                  <div className="relative w-full pt-[75%]">
                     <Image
                         src={selectedContent.image_url}
                         alt={selectedContent.titre}
                         fill
-                        className="object-cover rounded-lg"
+                        className="object-contain"
+                        sizes="(max-width: 640px) 100vw, 600px"
+                        priority
                     />
                   </div>
               )}
@@ -293,7 +296,6 @@ export default function ContentClient() {
             </DialogClose>
           </DialogContent>
         </Dialog>
-
         {/* Pagination */}
         {totalPages > 1 && (
             <div className="mt-8 flex flex-col items-center gap-4">

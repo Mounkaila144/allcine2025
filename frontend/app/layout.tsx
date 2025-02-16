@@ -3,7 +3,6 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 import { Toaster } from '@/components/ui/sonner';
-import { DebugAuth } from "@/components/auth/DebugAuth";
 import type { Metadata } from 'next';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -24,7 +23,6 @@ export default function RootLayout({
       <Providers>
         {children}
         <Toaster />
-        <DebugAuth />
       </Providers>
       </body>
       </html>

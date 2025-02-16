@@ -30,7 +30,7 @@ export default function Tarifs() {
               <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-primary/10 rounded-full" />
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <item.icon className="h-5 w-5 text-primary" />
+                  <item.icon className="h-5 w-5 text-red-500" />
                   {item.type}
                 </CardTitle>
               </CardHeader>
@@ -68,14 +68,14 @@ export default function Tarifs() {
               className={`relative overflow-hidden ${index === 1 ? "border-primary" : ""}`}
             >
               {index === 1 && (
-                <div className="absolute top-0 left-0 bg-primary text-primary-foreground px-3 py-1 rounded-br-lg text-sm">
+                <div className="absolute top-0 left-0 bg-primary text-red-500-foreground px-3 py-1 rounded-br-lg text-sm">
                   Plus populaire
                 </div>
               )}
               <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-primary/10 rounded-full" />
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <item.icon className="h-5 w-5 text-primary" />
+                  <item.icon className="h-5 w-5 text-red-500" />
                   Clé USB {item.capacity}
                 </CardTitle>
               </CardHeader>

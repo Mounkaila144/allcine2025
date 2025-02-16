@@ -128,7 +128,7 @@ function RecommendationCard({ item }) {
       <CardContent>
         <div className="flex justify-between items-center mb-4">
           <span className="text-sm text-muted-foreground">{item.genre}</span>
-          <span className="flex items-center gap-1 text-sm bg-primary/10 text-primary px-2 py-1 rounded">
+          <span className="flex items-center gap-1 text-sm bg-primary/10 text-red-500 px-2 py-1 rounded">
             <Star className="h-4 w-4" />
             {item.rating}
           </span>

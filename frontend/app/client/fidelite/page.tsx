@@ -40,14 +40,14 @@ export default function Fidelite() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex items-center gap-4 mb-8">
         <h1 className="text-4xl font-bold">Carte de Fidélité</h1>
-        <Gift className="h-8 w-8 text-primary" />
+        <Gift className="h-8 w-8 text-red-500" />
       </div>
 
       {/* Points actuels */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Award className="h-6 w-6 text-primary" />
+            <Award className="h-6 w-6 text-red-500" />
             Vos points de fidélité
           </CardTitle>
         </CardHeader>
@@ -65,13 +65,13 @@ export default function Fidelite() {
         {rewards.map((reward) => (
           <Card key={reward.level} className="relative overflow-hidden">
             {reward.progress === 100 && (
-              <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2 py-1 rounded text-sm">
+              <div className="absolute top-2 right-2 bg-primary text-red-500-foreground px-2 py-1 rounded text-sm">
                 Débloqué !
               </div>
             )}
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <reward.icon className="h-6 w-6 text-primary" />
+                <reward.icon className="h-6 w-6 text-red-500" />
                 Niveau {reward.level}
               </CardTitle>
             </CardHeader>

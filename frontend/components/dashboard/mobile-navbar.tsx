@@ -8,23 +8,20 @@ import {LogOut, Menu, X} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useLogoutMutation } from '@/lib/redux/api/authApi';
-import { routes } from './routes'; // On déplacera les routes dans un fichier séparé
+import { routes } from './routes';
+import {logout} from "@/lib/redux/slices/authSlice";
+import {toast} from "sonner";
+import {useAppDispatch} from "@/lib/redux/hooks"; // On déplacera les routes dans un fichier séparé
 
 export function MobileNavbar() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
-    const [logout] = useLogoutMutation();
-    const router = useRouter();
+    const dispatch = useAppDispatch();
 
-    const handleLogout = async () => {
-        try {
-            await logout().unwrap();
-            localStorage.removeItem('token');
-            localStorage.removeItem('tenant_id');
-            router.push('/');
-        } catch (error) {
-            console.error('Erreur lors de la déconnexion:', error);
-        }
+
+    const handleLogout = () => {
+        dispatch(logout());
+        toast.success("Déconnexion réussie");
     };
 
     return (
@@ -73,12 +70,11 @@ export function MobileNavbar() {
                         ))}
 
                         <Button
-                            variant="ghost"
-                            className="mt-auto w-full justify-start text-blue-100/80 hover:text-white hover:bg-blue-500/10"
+                            className="w-full justify-start bg-red-500 hover:bg-red-600 text-white rounded-md shadow-md"
                             onClick={handleLogout}
                         >
                             <LogOut className="h-5 w-5 mr-3" />
-                            Logout
+                            Déconnexion
                         </Button>
                     </div>
                 </div>

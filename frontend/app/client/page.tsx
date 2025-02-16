@@ -3,48 +3,36 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Film, Monitor, Smartphone, Star } from "lucide-react";
+import { Film, Monitor, Smartphone, Star, BookOpen } from "lucide-react"; //added BookOpen
 import Image from "next/image";
 import Link from "next/link";
 
-const FEATURED_ITEMS = [
-  {
-    title: "Nouveaux Films test",
-    description: "Découvrez les dernières sorties cinéma",
-    image: "/images/movies.jpg" // Déplacez les images en local
-  },
-  {
-    title: "Séries Populaires",
-    description: "Les séries les plus regardées du moment",
-    image: "/images/series.jpg"
-  },
-  {
-    title: "Promos Tech",
-    description: "Équipements et accessoires en promotion",
-    image: "/images/tech.jpg"
-  }
-];
 
 const SERVICES = [
   {
     icon: Film,
     title: "Films & Séries",
-    description: "Large catalogue de films et séries en qualité HD"
+    description: "Large catalogue de films et séries en qualité HD",
+    color: "text-red-500" // Add color for icon
   },
+  {
+    icon: BookOpen, // Changed to BookOpen for Manga
+    title: "Manga",
+    description: "Large catalogue de Manga ",
+    color: "text-red-500"
+  },
+
   {
     icon: Monitor,
     title: "Produits Tech",
-    description: "Matériel informatique et accessoires de qualité"
-  },
-  {
-    icon: Smartphone,
-    title: "Mobile",
-    description: "Application mobile pour accéder à vos contenus"
+    description: "Matériel informatique et accessoires de qualité",
+    color: "text-red-500"
   },
   {
     icon: Star,
     title: "Fidélité",
-    description: "Programme de fidélité avec des récompenses exclusives"
+    description: "Programme de fidélité avec des récompenses exclusives",
+    color: "text-red-500"
   }
 ];
 
@@ -69,11 +57,11 @@ export default function ClientHome() {
                 Découvrez notre sélection de films, séries et produits informatiques
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" asChild>
-                  <Link href="/catalogue">Explorer le catalogue</Link>
+                <Button size="lg" className="bg-red-500 hover:bg-red-600 text-white" asChild>
+                  <Link href="/client/contentClient">Explorer les films</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="bg-white/10" asChild>
-                  <Link href="/actualites">Voir les nouveautés</Link>
+                <Button size="lg" variant="outline" className="text-white border-red-500 hover:bg-red-500 hover:text-white" asChild>
+                  <Link href="/client/contentClient">Voir les nouveautés</Link>
                 </Button>
               </div>
             </div>
@@ -88,7 +76,7 @@ export default function ClientHome() {
                 <Card key={index}>
                   <CardContent className="pt-6">
                     <div className="text-center">
-                      <service.icon className="h-12 w-12 mx-auto mb-4 text-primary" />
+                      <service.icon className={`h-12 w-12 mx-auto mb-4 ${service.color}`} /> {/* Apply color here */}
                       <h3 className="text-lg font-semibold mb-2">{service.title}</h3>
                       <p className="text-sm text-muted-foreground">
                         {service.description}
@@ -97,36 +85,6 @@ export default function ClientHome() {
                   </CardContent>
                 </Card>
             ))}
-          </div>
-        </section>
-
-        {/* Featured Section */}
-        <section className="bg-muted py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-center mb-12">À la une</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {FEATURED_ITEMS.map((item, index) => (
-                  <Card key={index} className="overflow-hidden">
-                    <div className="relative h-48">
-                      <Image
-                          src={item.image}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                      />
-                    </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {item.description}
-                      </p>
-                      <Button variant="outline" className="w-full" asChild>
-                        <Link href="/catalogue">En savoir plus</Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-              ))}
-            </div>
           </div>
         </section>
       </div>

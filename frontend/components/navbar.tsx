@@ -11,7 +11,6 @@ import { toast } from "sonner";
 
 const navigation = [
     { name: 'Accueil', href: '/client/', icon: Film },
-    { name: 'Actualités', href: '/client/actualites', icon: Newspaper },
     { name: 'Film/Serie/Manga', href: '/client/contentClient', icon: List },
     { name: 'Tarifs', href: '/client/tarifs', icon: PriceTag },
     { name: 'Recommandations', href: '/client/recommandations', icon: ThumbsUp },
@@ -35,29 +34,35 @@ export default function Navbar() {
             return (
                 <div className="flex items-center gap-2">
                     {user?.role === "admin" && (
-                        <Button variant="default" size="sm" asChild>
-                            <Link href="/dashboard">
-                                {/*<LogOut className="mr-2 h-4 w-4" />  Removed duplicate icon */}
-                                Administrateur
-                            </Link>
-                        </Button>
+                        <Link
+                            href="/dashboard"
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary/10 text-red-500 hover:bg-primary hover:text-white transition-colors"
+                        >
+                            <List className="h-5 w-5" />
+                            Admin
+                        </Link>
                     )}
-                    <Button variant="destructive" size="sm" onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4" />
+                    <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleLogout}
+                        className="flex items-center gap-2"
+                    >
+                        <LogOut className="h-4 w-4" />
                         Déconnexion
-                        {/* Removed the extra link and duplicate icon.  The button itself handles the logout. */}
                     </Button>
                 </div>
             );
         }
 
         return (
-            <Button variant="default" size="sm" asChild>
-                <Link href="/client/login">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Connexion
-                </Link>
-            </Button>
+            <Link
+                href="/client/login"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
+            >
+                <LogIn className="h-5 w-5" />
+                Connexion
+            </Link>
         );
     };
 
@@ -67,7 +72,7 @@ export default function Navbar() {
                 <div className="flex justify-between h-16">
                     <div className="flex">
                         <Link href="/client" className="flex items-center">
-                            <Film className="h-8 w-8 text-primary" />
+                            <Film className="h-8 w-8 text-red-500" />
                             <span className="ml-2 text-xl font-bold">Allciné</span>
                         </Link>
                     </div>
@@ -78,7 +83,7 @@ export default function Navbar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-sm font-medium"
+                                className="text-muted-foreground hover:text-red-500 px-3 py-2 rounded-md text-sm font-medium"
                             >
                                 {item.name}
                             </Link>
@@ -110,7 +115,7 @@ export default function Navbar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="flex items-center text-muted-foreground hover:text-primary px-3 py-2 rounded-md text-base font-medium"
+                                className="flex items-center text-muted-foreground hover:text-red-500 px-3 py-2 rounded-md text-base font-medium"
                                 onClick={() => setIsOpen(false)}
                             >
                                 <item.icon className="mr-3 h-5 w-5" />
