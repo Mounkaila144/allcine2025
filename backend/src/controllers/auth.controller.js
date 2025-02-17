@@ -7,6 +7,7 @@ const { JWT_SECRET, BCRYPT_ROUNDS } = require('../config/config');
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const whatsappNumber = process.env.TWILIO_WHATSAPP_NUMBER;
+const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
 const client = twilio(accountSid, authToken);
 const RESET_REQUEST_LIMIT = 3; // Nombre maximum de demandes par période
 const RESET_COOLDOWN_HOURS = 24; // Période de cooldown en heures
@@ -17,16 +18,20 @@ const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString()
 const sendOTP = async (phone, otp) => {
     try {
         const message = await client.messages.create({
-            from: `whatsapp:${whatsappNumber}`,
-            body: `Votre code de vérification est: ${otp}`,
-            to: `whatsapp:${phone}`
+            messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID, // Par exemple : MGb5a6293cddd03dfb8a699e756c044987
+            to: `whatsapp:${phone}`,
+            contentSid: 'HX13033e077ed71bc142cb125eeebd10c1', // Votre Template SID approuvé
+            contentVariables: JSON.stringify({ '1': otp }) // Remplace {{1}} par le code OTP
         });
+        console.log("Message envoyé, SID :", message.sid);
         return true;
     } catch (error) {
-        console.error("Erreur Twilio:", error);
+        console.error("Erreur Twilio lors de l'envoi de l'OTP via template:", error);
         return false;
     }
 };
+
+
 
 const register = async (req, res) => {
     try {
