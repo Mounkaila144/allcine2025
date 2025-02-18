@@ -49,7 +49,7 @@ const mockReservations: Reservation[] = [
 const statusColors: Record<string, { bg: string; text: string }> = {
   pending: { bg: 'bg-yellow-500/20', text: 'text-yellow-500' },
   confirmed: { bg: 'bg-emerald-500/20', text: 'text-emerald-500' },
-  cancelled: { bg: 'bg-red-500/20', text: 'text-red-500' }
+  cancelled: { bg: 'bg-yellow-500/20', text: 'text-yellow-500' }
 };
 
 export default function ReservationsPage() {

@@ -33,7 +33,7 @@ export default function Articles() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex items-center gap-4 mb-8">
                 <h1 className="text-4xl font-bold">Articles & Astuces</h1>
-                <BookOpen className="h-8 w-8 text-red-500" />
+                <BookOpen className="h-8 w-8 text-yellow-500" />
             </div>
 
             <div className="relative max-w-md mb-8">
@@ -69,7 +69,7 @@ export default function Articles() {
                         </div>
                         <CardHeader>
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium bg-primary/10 text-red-500 px-2 py-1 rounded">
+                                <span className="text-sm font-medium bg-primary/10 text-yellow-500 px-2 py-1 rounded">
                                     {article.Category?.nom || 'Non catégorisé'}
                                 </span>
                                 <span className="text-sm text-muted-foreground flex items-center">
@@ -82,7 +82,7 @@ export default function Articles() {
                         <CardContent>
                             <button
                                 onClick={() => setSelectedArticle(article)}
-                                className="flex items-center justify-center w-full bg-transparent border border-primary text-red-500 hover:bg-primary hover:text-white transition-colors duration-200 py-2 px-4 rounded"
+                                className="flex items-center justify-center w-full bg-transparent border border-primary text-yellow-500 hover:bg-primary hover:text-white transition-colors duration-200 py-2 px-4 rounded"
                             >
                                 Lire l'article
                                 <ArrowRight className="ml-2 h-4 w-4" />

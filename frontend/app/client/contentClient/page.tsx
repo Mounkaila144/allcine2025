@@ -97,7 +97,7 @@ export default function ContentClient() {
   }
 
   if (error) {
-    return <div className="text-red-500">Une erreur est survenue lors du chargement des contenus.</div>
+    return <div className="text-yellow-500">Une erreur est survenue lors du chargement des contenus.</div>
   }
 
   return (
@@ -219,7 +219,7 @@ export default function ContentClient() {
             {item.genre} {item.release_date && `(${new Date(item.release_date).getFullYear()})`}
           </span>
                     {item.average_rating && (
-                        <span className="text-xs bg-primary/10 text-red-500 px-2 py-1 rounded">
+                        <span className="text-xs bg-primary/10 text-yellow-500 px-2 py-1 rounded">
               ★ {item.average_rating.toFixed(1)}
             </span>
                     )}

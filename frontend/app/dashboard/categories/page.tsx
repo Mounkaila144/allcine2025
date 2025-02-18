@@ -130,10 +130,10 @@ export default function CategoriesPage() {
             <Button
                 variant="ghost"
                 size="icon"
-                className="hover:bg-red-200/20 rounded-md"
+                className="hover:bg-yellow-200/20 rounded-md"
                 onClick={(e) => { e.stopPropagation(); handleDelete(category); }}
             >
-              <Trash2 className="h-4 w-4 text-red-400" />
+              <Trash2 className="h-4 w-4 text-yellow-400" />
             </Button>
           </div>
       )

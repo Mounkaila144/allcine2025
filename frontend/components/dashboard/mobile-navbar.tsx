@@ -70,7 +70,7 @@ export function MobileNavbar() {
                         ))}
 
                         <Button
-                            className="w-full justify-start bg-red-500 hover:bg-red-600 text-white rounded-md shadow-md"
+                            className="w-full justify-start bg-yellow-500 hover:bg-yellow-600 text-white rounded-md shadow-md"
                             onClick={handleLogout}
                         >
                             <LogOut className="h-5 w-5 mr-3" />

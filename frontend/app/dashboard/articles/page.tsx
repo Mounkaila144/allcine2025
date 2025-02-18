@@ -235,7 +235,7 @@ export default function ArticlesPage() {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="hover:bg-gray-700 rounded-md text-red-500 hover:text-red-400"
+                        className="hover:bg-gray-700 rounded-md text-yellow-500 hover:text-yellow-400"
                         onClick={() => handleDelete(article)}
                     >
                         <Trash2 className="h-4 w-4" />

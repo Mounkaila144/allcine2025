@@ -37,7 +37,7 @@ export default function Navbar() {
                     {user?.role === "admin" && (
                         <Link
                             href="/dashboard"
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary/10 text-red-500 hover:bg-primary hover:text-white transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary/10 text-yellow-500 hover:bg-primary hover:text-white transition-colors"
                         >
                             <List className="h-5 w-5" />
                             Admin
@@ -90,7 +90,7 @@ export default function Navbar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="text-muted-foreground hover:text-red-500 px-3 py-2 rounded-md text-sm font-medium"
+                                className="text-muted-foreground hover:text-yellow-500 px-3 py-2 rounded-md text-sm font-medium"
                             >
                                 {item.name}
                             </Link>
@@ -122,7 +122,7 @@ export default function Navbar() {
                             <Link
                                 key={item.name}
                                 href={item.href}
-                                className="flex items-center text-muted-foreground hover:text-red-500 px-3 py-2 rounded-md text-base font-medium"
+                                className="flex items-center text-muted-foreground hover:text-yellow-500 px-3 py-2 rounded-md text-base font-medium"
                                 onClick={() => setIsOpen(false)}
                             >
                                 <item.icon className="mr-3 h-5 w-5" />

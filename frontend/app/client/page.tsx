@@ -13,26 +13,26 @@ const SERVICES = [
     icon: Film,
     title: "Films & Séries",
     description: "Large catalogue de films et séries en qualité HD",
-    color: "text-red-500" // Add color for icon
+    color: "text-yellow-500" // Add color for icon
   },
   {
     icon: BookOpen, // Changed to BookOpen for Manga
     title: "Manga",
     description: "Large catalogue de Manga ",
-    color: "text-red-500"
+    color: "text-yellow-500"
   },
 
   {
     icon: Monitor,
     title: "Produits Tech",
     description: "Matériel informatique et accessoires de qualité",
-    color: "text-red-500"
+    color: "text-yellow-500"
   },
   {
     icon: Star,
     title: "Fidélité",
     description: "Programme de fidélité avec des récompenses exclusives",
-    color: "text-red-500"
+    color: "text-yellow-500"
   }
 ];
 
@@ -57,10 +57,10 @@ export default function ClientHome() {
                 Découvrez notre sélection de films, séries et produits informatiques
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="bg-red-500 hover:bg-red-600 text-white" asChild>
+                <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-white" asChild>
                   <Link href="/client/contentClient">Explorer les films</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="text-white border-red-500 hover:bg-red-500 hover:text-white" asChild>
+                <Button size="lg" variant="outline" className="text-white border-yellow-500 hover:bg-yellow-500 hover:text-white" asChild>
                   <Link href="/client/contentClient">Voir les nouveautés</Link>
                 </Button>
               </div>
