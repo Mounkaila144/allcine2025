@@ -8,6 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { logout } from "@/lib/redux/slices/authSlice";
 import { useRouter } from "next/navigation"; //  Correct, but not strictly necessary in this component
 import { toast } from "sonner";
+import Image from "next/image";
 
 const navigation = [
     { name: 'Accueil', href: '/client/', icon: Film },
@@ -72,8 +73,14 @@ export default function Navbar() {
                 <div className="flex justify-between h-16">
                     <div className="flex">
                         <Link href="/client" className="flex items-center">
-                            <Film className="h-8 w-8 text-red-500" />
-                            <span className="ml-2 text-xl font-bold">Allciné</span>
+                            <Image
+                                src="/image/logo.png"
+                                alt="Logo"
+                                width={80}
+                                height={40}
+                                priority
+                            />
+
                         </Link>
                     </div>
 
