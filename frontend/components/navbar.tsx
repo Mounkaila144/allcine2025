@@ -1,14 +1,30 @@
+// components/Navbar.tsx
 "use client";
 import Link from "next/link";
-import { Film, Newspaper, List, Tag as PriceTag, ThumbsUp, BookOpen, Gift, LogIn, LogOut, Menu, X } from "lucide-react";
+import {
+    Film,
+    Newspaper,
+    List,
+    Tag as PriceTag,
+    ThumbsUp,
+    BookOpen,
+    Gift,
+    LogIn,
+    LogOut,
+    Menu,
+    X,
+    ShoppingCart
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useAppDispatch, useAppSelector } from "@/lib/redux/hooks";
 import { logout } from "@/lib/redux/slices/authSlice";
-import { useRouter } from "next/navigation"; //  Correct, but not strictly necessary in this component
-import { toast } from "sonner";
 import Image from "next/image";
+import { selectCartItems, setCartOpen } from "@/lib/redux/slices/cartSlice";
+import { CartDrawer } from "@/components/CartDrawer";
+import { Badge } from "@/components/ui/badge";
+import {toast} from "sonner";
 
 const navigation = [
     { name: 'Accueil', href: '/client/', icon: Film },
@@ -22,13 +38,15 @@ const navigation = [
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const dispatch = useAppDispatch();
-    const router = useRouter(); // Correct, but not strictly necessary, as you don't use `router.push` here.
     const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+    const cartItems = useAppSelector(selectCartItems);
 
     const handleLogout = () => {
         dispatch(logout());
         toast.success("Déconnexion réussie");
     };
+
+    const cartItemCount = cartItems.reduce((total, item) => total + item.quantite, 0);
 
     const renderAuthButton = () => {
         if (isAuthenticated) {
@@ -37,7 +55,7 @@ export default function Navbar() {
                     {user?.role === "admin" && (
                         <Link
                             href="/dashboard"
-                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary/10 text-yellow-500 hover:bg-primary hover:text-white transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-yellow-600/10 text-yellow-500 hover:bg-yellow-600 hover:text-white transition-colors"
                         >
                             <List className="h-5 w-5" />
                             Admin
@@ -59,7 +77,7 @@ export default function Navbar() {
         return (
             <Link
                 href="/client/login"
-                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-yellow-600 text-white hover:bg-yellow-600/90 transition-colors"
             >
                 <LogIn className="h-5 w-5" />
                 Connexion
@@ -80,7 +98,6 @@ export default function Navbar() {
                                 height={40}
                                 priority
                             />
-
                         </Link>
                     </div>
 
@@ -96,11 +113,37 @@ export default function Navbar() {
                             </Link>
                         ))}
                         {renderAuthButton()}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => dispatch(setCartOpen(true))}
+                            className="relative"
+                        >
+                            <ShoppingCart className="h-5 w-5" />
+                            {cartItemCount > 0 && (
+                                <Badge className="absolute -top-2 -right-2 bg-yellow-500">
+                                    {cartItemCount}
+                                </Badge>
+                            )}
+                        </Button>
                         <ModeToggle />
                     </div>
 
                     {/* Mobile menu button */}
                     <div className="flex items-center md:hidden">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => dispatch(setCartOpen(true))}
+                            className="relative mr-2"
+                        >
+                            <ShoppingCart className="h-5 w-5" />
+                            {cartItemCount > 0 && (
+                                <Badge className="absolute -top-2 -right-2 bg-yellow-500">
+                                    {cartItemCount}
+                                </Badge>
+                            )}
+                        </Button>
                         <ModeToggle />
                         <Button
                             variant="ghost"
@@ -135,6 +178,9 @@ export default function Navbar() {
                     </div>
                 </div>
             )}
+
+            {/* Cart Drawer */}
+            <CartDrawer />
         </nav>
     );
 }

@@ -1,4 +1,4 @@
-// articleApi.ts
+
 import { api } from '../api';
 
 export interface Article {
@@ -36,13 +36,6 @@ export interface ArticleResponse {
     };
 }
 
-export interface CreateArticleDto {
-    titre: string;
-    categorie_id: number;
-    prix: number;
-    description: string;
-}
-
 export const articleApi = api.injectEndpoints({
     endpoints: (builder) => ({
         getArticles: builder.query<ArticleResponse, ArticleFilters>({
@@ -66,7 +59,13 @@ export const articleApi = api.injectEndpoints({
                     hasPreviousPage: response.pagination.hasPreviousPage
                 }
             }),
-            providesTags: ['Articles']
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.articles.map(({ id }) => ({ type: 'Articles' as const, id })),
+                        { type: 'Articles' as const, id: 'LIST' }
+                    ]
+                    : [{ type: 'Articles' as const, id: 'LIST' }]
         }),
         createArticle: builder.mutation<Article, FormData>({
             query: (formData) => ({
@@ -75,7 +74,7 @@ export const articleApi = api.injectEndpoints({
                 body: formData,
                 formData: true,
             }),
-            invalidatesTags: ['Articles'],
+            invalidatesTags: [{ type: 'Articles', id: 'LIST' }]
         }),
         updateArticle: builder.mutation<Article, { id: number; data: FormData }>({
             query: ({ id, data }) => ({
@@ -84,14 +83,20 @@ export const articleApi = api.injectEndpoints({
                 body: data,
                 formData: true,
             }),
-            invalidatesTags: ['Articles'],
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Articles', id },
+                { type: 'Articles', id: 'LIST' }
+            ]
         }),
         deleteArticle: builder.mutation<void, number>({
             query: (id) => ({
                 url: `articles/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Articles'],
+            invalidatesTags: (result, error, id) => [
+                { type: 'Articles', id },
+                { type: 'Articles', id: 'LIST' }
+            ]
         }),
     }),
 });

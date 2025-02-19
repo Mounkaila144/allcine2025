@@ -48,7 +48,7 @@ const columns = [
       <span className={`px-2 py-1 rounded-full text-xs ${
         review.status === 'Published' 
           ? 'bg-emerald-500/20 text-emerald-500'
-          : 'bg-yellow-500/20 text-yellow-500'
+          : 'bg-yellow-600/20 text-yellow-500'
       }`}>
         {review.status}
       </span>

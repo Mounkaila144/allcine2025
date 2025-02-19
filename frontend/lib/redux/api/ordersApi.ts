@@ -22,14 +22,20 @@ export interface OrderContent {
     saisons_possedees?: number;
 }
 
+export interface DeliveryInfo {
+    address: string;
+    note?: string;
+}
+
 export interface Order {
     id: number;
     user_id: number;
-    User?: User;  // Changé de 'user' à 'User' pour correspondre à la réponse API
+    User?: User;
     data: {
         total: number;
         articles?: OrderArticle[];
         contents?: OrderContent[];
+        deliveryInfo: DeliveryInfo;
     };
     statut: 'en_attente' | 'confirme' | 'livre';
     createdAt: string;
@@ -42,6 +48,16 @@ export const ordersApi = api.injectEndpoints({
             query: () => '/orders',
             providesTags: ['Orders'],
         }),
+
+        createOrder: builder.mutation<Order, { data: Order['data'] }>({
+            query: (orderData) => ({
+                url: '/orders',
+                method: 'POST',
+                body: orderData,
+            }),
+            invalidatesTags: ['Orders'],
+        }),
+
         updateOrderStatus: builder.mutation<Order, { id: number; statut: Order['statut'] }>({
             query: ({ id, statut }) => ({
                 url: `/orders/${id}`,
@@ -55,5 +71,6 @@ export const ordersApi = api.injectEndpoints({
 
 export const {
     useGetOrdersQuery,
+    useCreateOrderMutation,
     useUpdateOrderStatusMutation,
 } = ordersApi;

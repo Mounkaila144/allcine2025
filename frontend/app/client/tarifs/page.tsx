@@ -27,7 +27,7 @@ export default function Tarifs() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {prices.films.map((item, index) => (
             <Card key={index} className="relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-primary/10 rounded-full" />
+              <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-yellow-600/10 rounded-full" />
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <item.icon className="h-5 w-5 text-yellow-500" />
@@ -65,14 +65,14 @@ export default function Tarifs() {
           {prices.usb.map((item, index) => (
             <Card 
               key={index} 
-              className={`relative overflow-hidden ${index === 1 ? "border-primary" : ""}`}
+              className={`relative overflow-hidden ${index === 1 ? "border-yellow" : ""}`}
             >
               {index === 1 && (
-                <div className="absolute top-0 left-0 bg-primary text-yellow-500-foreground px-3 py-1 rounded-br-lg text-sm">
+                <div className="absolute top-0 left-0 bg-yellow-600 text-yellow-500-foreground px-3 py-1 rounded-br-lg text-sm">
                   Plus populaire
                 </div>
               )}
-              <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-primary/10 rounded-full" />
+              <div className="absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 bg-yellow-600/10 rounded-full" />
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <item.icon className="h-5 w-5 text-yellow-500" />

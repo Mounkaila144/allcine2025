@@ -1,6 +1,11 @@
 // lib/redux/store.ts
-"use client";
-import {configureStore, combineReducers} from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import cartReducer from './slices/cartSlice';
+import authReducer from './slices/authSlice';
+import ordersReducer from './slices/ordersSlice';
+import reservationsReducer from './slices/reservationsSlice';
+import { api } from './api';
+import { authApi } from './api/authApi';
 import {
     persistStore,
     persistReducer,
@@ -9,27 +14,22 @@ import {
     PAUSE,
     PERSIST,
     PURGE,
-    REGISTER
+    REGISTER,
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import {api} from './api';
-import authReducer from './slices/authSlice';
-import ordersReducer from './slices/ordersSlice';
-import reservationsReducer from './slices/reservationsSlice';
-import {authApi} from './api/authApi';
 
 const persistConfig = {
     key: 'root',
     version: 1,
     storage,
-    whitelist: ['auth'],
+    whitelist: ['auth','cart'],
     blacklist: [api.reducerPath, authApi.reducerPath],
-    // Ajout d'un timeout pour éviter les problèmes de persistance
     timeout: 2000,
 };
 
 const rootReducer = combineReducers({
     auth: authReducer,
+    cart: cartReducer,
     orders: ordersReducer,
     reservations: reservationsReducer,
     [api.reducerPath]: api.reducer,
@@ -45,12 +45,11 @@ export const store = configureStore({
             serializableCheck: {
                 ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
             },
-            // Ajout du mode debug
             debug: process.env.NODE_ENV !== 'production',
         })
             .concat(api.middleware)
             .concat(authApi.middleware),
-    devTools: true, // Activer les devTools même en production pour le débogage
+    devTools: process.env.NODE_ENV !== 'production',
 });
 
 export const persistor = persistStore(store);

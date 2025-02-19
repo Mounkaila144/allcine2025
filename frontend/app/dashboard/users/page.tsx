@@ -120,7 +120,7 @@ export default function UsersPage() {
           <span className={`px-2 py-1 rounded-full text-xs ${
               user.isConfirme
                   ? 'bg-emerald-500/20 text-emerald-500'
-                  : 'bg-yellow-500/20 text-yellow-500'
+                  : 'bg-yellow-600/20 text-yellow-500'
           }`}>
                     {user.isConfirme ? 'Confirmé' : 'En attente'}
                 </span>
@@ -206,7 +206,7 @@ export default function UsersPage() {
 
           <div className="glass-effect border-blue-900/20 rounded-lg p-6">
             <div className="flex items-center space-x-4">
-              <div className="p-3 bg-yellow-500/20 rounded-full">
+              <div className="p-3 bg-yellow-600/20 rounded-full">
                 <Mail className="h-6 w-6 text-yellow-400" />
               </div>
               <div>

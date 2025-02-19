@@ -57,10 +57,10 @@ export default function ClientHome() {
                 Découvrez notre sélection de films, séries et produits informatiques
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <Button size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-white" asChild>
+                <Button size="lg" className="bg-yellow-600 hover:bg-yellow-600 text-white" asChild>
                   <Link href="/client/contentClient">Explorer les films</Link>
                 </Button>
-                <Button size="lg" variant="outline" className="text-white border-yellow-500 hover:bg-yellow-500 hover:text-white" asChild>
+                <Button size="lg" variant="outline" className="text-white border-yellow-500 hover:bg-yellow-600 hover:text-white" asChild>
                   <Link href="/client/contentClient">Voir les nouveautés</Link>
                 </Button>
               </div>

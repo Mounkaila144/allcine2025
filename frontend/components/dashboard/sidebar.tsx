@@ -18,9 +18,9 @@ export function Sidebar() {
 
     const handleLogout = () => {
         dispatch(logout());
-        localStorage.removeItem("token")
         toast.success("Déconnexion réussie");
     };
+
 
     return (
         <aside className="fixed top-0 left-0 w-64 h-screen border-r border-blue-900/20 z-30"

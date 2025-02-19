@@ -12,7 +12,7 @@ import { useGetOrdersQuery, useUpdateOrderStatusMutation, Order } from '@/lib/re
 import LoadingSpinner from "@/components/LoadingSpinner";
 
 const statusColors: Record<string, { bg: string; text: string; hoverBg: string }> = {
-  en_attente: { bg: 'bg-yellow-500/20', text: 'text-yellow-500', hoverBg: 'hover:bg-yellow-500/30' },
+  en_attente: { bg: 'bg-yellow-600/20', text: 'text-yellow-500', hoverBg: 'hover:bg-yellow-600/30' },
   confirme: { bg: 'bg-blue-500/20', text: 'text-blue-500', hoverBg: 'hover:bg-blue-500/30' },
   livre: { bg: 'bg-green-500/20', text: 'text-green-500', hoverBg: 'hover:bg-green-500/30' },
 };

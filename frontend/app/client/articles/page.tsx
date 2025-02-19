@@ -1,19 +1,25 @@
+// pages/Articles.tsx
 "use client"
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { BookOpen, Search, Calendar, ArrowRight } from "lucide-react"
+import { BookOpen, Search, Calendar, ArrowRight, ShoppingCart } from "lucide-react"
 import Image from "next/image"
 import { useGetArticlesQuery } from '@/lib/redux/api/articleApi'
 import LoadingSpinner from "@/components/LoadingSpinner"
+import { useDispatch } from 'react-redux'
+import { addItem, setCartOpen } from '@/lib/redux/slices/cartSlice'
+import { toast } from 'sonner'
+import { Button } from "@/components/ui/button"
 
 export default function Articles() {
     const [searchTerm, setSearchTerm] = useState("")
     const [currentPage, setCurrentPage] = useState(1)
     const [selectedArticle, setSelectedArticle] = useState(null)
-    const pageSize = 12 // Changé à 12 pour avoir des rangées complètes de 4
+    const pageSize = 12
+    const dispatch = useDispatch()
 
     const { data, isLoading } = useGetArticlesQuery({
         search: searchTerm,
@@ -24,6 +30,18 @@ export default function Articles() {
     })
 
     const articles = data?.articles || []
+
+    const handleAddToCart = (article) => {
+        dispatch(addItem({
+            type: 'article',
+            id: article.id,
+            titre: article.titre,
+            prix: article.prix,
+            quantite: 1
+        }))
+        dispatch(setCartOpen(true))
+        toast.success('Article ajouté au panier')
+    }
 
     if (isLoading) {
         return <LoadingSpinner />
@@ -69,7 +87,7 @@ export default function Articles() {
                         </div>
                         <CardHeader>
                             <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium bg-primary/10 text-yellow-500 px-2 py-1 rounded">
+                                <span className="text-sm font-medium bg-yellow-600/10 text-yellow-500 px-2 py-1 rounded">
                                     {article.Category?.nom || 'Non catégorisé'}
                                 </span>
                                 <span className="text-sm text-muted-foreground flex items-center">
@@ -80,13 +98,22 @@ export default function Articles() {
                             <CardTitle className="line-clamp-2">{article.titre}</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <button
-                                onClick={() => setSelectedArticle(article)}
-                                className="flex items-center justify-center w-full bg-transparent border border-primary text-yellow-500 hover:bg-primary hover:text-white transition-colors duration-200 py-2 px-4 rounded"
-                            >
-                                Lire l'article
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                            </button>
+                            <div className="space-y-2">
+                                <Button
+                                    onClick={() => setSelectedArticle(article)}
+                                    className="w-full bg-transparent border border-yellow-500 text-yellow-500 hover:bg-yellow-600 hover:text-white"
+                                >
+                                    Lire l'article
+                                    <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                                <Button
+                                    onClick={() => handleAddToCart(article)}
+                                    className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                                >
+                                    Ajouter au panier
+                                    <ShoppingCart className="ml-2 h-4 w-4" />
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}
@@ -122,7 +149,7 @@ export default function Articles() {
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={!data.pagination.hasPreviousPage}
-                        className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50"
+                        className="px-4 py-2 bg-yellow-600 text-white rounded disabled:opacity-50"
                     >
                         Précédent
                     </button>
@@ -132,7 +159,7 @@ export default function Articles() {
                     <button
                         onClick={() => setCurrentPage(prev => prev + 1)}
                         disabled={!data.pagination.hasNextPage}
-                        className="px-4 py-2 bg-primary text-white rounded disabled:opacity-50"
+                        className="px-4 py-2 bg-yellow-600 text-white rounded disabled:opacity-50"
                     >
                         Suivant
                     </button>

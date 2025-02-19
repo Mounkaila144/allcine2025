@@ -47,15 +47,12 @@ export default function AuthComponent() {
 
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-
         try {
             const fullPhoneNumber = `${selectedCountry.code}${phone}`;
-
             const response = await login({
                 phone: fullPhoneNumber,
                 password
             }).unwrap();
-
 
             if (!response || !response.token || !response.user) {
                 throw new Error('Réponse invalide du serveur');
@@ -68,23 +65,12 @@ export default function AuthComponent() {
                 })
             );
 
-            localStorage.setItem("token", response.token);
-
-            toast.success("Connexion réussie", {
-                duration: 2000,
-            });
+            toast.success("Connexion réussie", { duration: 2000 });
 
             const redirectPath = response.user.role === 'admin' ? '/dashboard' : '/client';
-            if (response.user.role) {
-                router.replace(redirectPath);
-            }
-
-
+            router.replace(redirectPath);
         } catch (error: any) {
-
-
             toast.error(error.data?.message || "Une erreur est survenue lors de la connexion");
-            localStorage.removeItem("token");
         }
     };
 

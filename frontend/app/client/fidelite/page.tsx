@@ -65,7 +65,7 @@ export default function Fidelite() {
         {rewards.map((reward) => (
           <Card key={reward.level} className="relative overflow-hidden">
             {reward.progress === 100 && (
-              <div className="absolute top-2 right-2 bg-primary text-yellow-500-foreground px-2 py-1 rounded text-sm">
+              <div className="absolute top-2 right-2 bg-yellow-600 text-yellow-500-foreground px-2 py-1 rounded text-sm">
                 Débloqué !
               </div>
             )}
