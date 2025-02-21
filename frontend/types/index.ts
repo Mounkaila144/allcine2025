@@ -10,7 +10,16 @@ export interface Article {
         nom: string;
     };
 }
-
+export interface DeliveryInfo {
+    address: string;
+    note: string;
+    isRequired?: boolean;
+}
+type ContentDetails = {
+    type: 'serie' | 'film' | 'manga';
+    saisons_possedees?: number[];  // Tableau des numéros de saisons
+    // ... autres propriétés
+};
 export interface CartItem {
     type: 'article' | 'content';
     id: number;

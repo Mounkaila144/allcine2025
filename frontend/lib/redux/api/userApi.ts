@@ -8,6 +8,10 @@ export interface User {
     phone: string;
     role: 'client' | 'admin';
     isConfirme: boolean;
+    loyalty?: {
+        stamp_count: number;
+        card_count: number;
+    };
 }
 
 export const usersApi = api.injectEndpoints({

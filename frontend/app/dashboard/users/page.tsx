@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Shield, Mail, Users } from 'lucide-react';
+import {Plus, Pencil, Trash2, Shield, Mail, Users, Award} from 'lucide-react';
 import { toast } from 'sonner';
 import {
   useGetUsersQuery,
@@ -15,6 +15,8 @@ import {
   User
 } from '@/lib/redux/api/userApi';
 import LoadingSpinner from "@/components/LoadingSpinner";
+import LoyaltyModal from "@/components/LoyaltyModal";
+import {useCreateLoyaltyStatusMutation, useUpdateLoyaltyStampsMutation} from "@/lib/redux/api/loyaltyApi";
 
 const roleColors: Record<string, { bg: string; text: string }> = {
   admin: { bg: 'bg-purple-500/20', text: 'text-purple-500' },
@@ -25,7 +27,10 @@ export default function UsersPage() {
   const { data: users = [], isLoading } = useGetUsersQuery();
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
-
+  const [updateLoyalty] = useUpdateLoyaltyStampsMutation();
+  const [createLoyalty] = useCreateLoyaltyStatusMutation();
+  const [isLoyaltyModalOpen, setIsLoyaltyModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
@@ -42,7 +47,32 @@ export default function UsersPage() {
       [name]: value
     }));
   };
+  const handleLoyaltyUpdate = async (userId: number, loyaltyData: { stamp_count: number; card_count: number }) => {
+    try {
+      // Mettre à jour directement les points
+      await updateLoyalty({
+        user_id: userId,
+        ...loyaltyData
+      }).unwrap();
 
+    } catch (error: any) {
+      if (error?.status === 404) {
+        // Si l'utilisateur n'a pas de carte de fidélité (404), en créer une
+        try {
+          await createLoyalty(userId).unwrap();
+          // Réessayer la mise à jour après la création
+          await updateLoyalty({
+            user_id: userId,
+            ...loyaltyData
+          }).unwrap();
+        } catch (createError) {
+          toast.error('Erreur lors de la création/mise à jour de la carte de fidélité');
+        }
+      } else {
+        toast.error('Erreur lors de la mise à jour des points');
+      }
+    }
+  };
   const resetForm = () => {
     setFormData({
       nom: '',
@@ -127,6 +157,21 @@ export default function UsersPage() {
       )
     },
     {
+      key: 'loyalty',
+      title: 'Fidélité',
+      render: (user: User) => (
+          <div className="text-sm">
+            <div className="flex items-center gap-1">
+              <Award className="h-4 w-4 text-yellow-400" />
+              <span>{user.loyalty?.stamp_count || 0} points</span>
+            </div>
+            <div className="text-blue-100/60 text-xs">
+              {user.loyalty?.card_count || 0} cartes
+            </div>
+          </div>
+      )
+    },
+    {
       key: 'actions',
       title: 'Actions',
       render: (user: User) => (
@@ -146,10 +191,21 @@ export default function UsersPage() {
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
+                  setSelectedUser(user);
+                  setIsLoyaltyModalOpen(true);
+                }}
+            >
+              <Award className="h-4 w-4 text-yellow-400" />
+            </Button>
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
                   handleDelete(user);
                 }}
             >
-              <Trash2 className="h-4 w-4 text-yellow-400" />
+              <Trash2 className="h-4 w-4 text-red-400" />
             </Button>
           </div>
       )
@@ -291,7 +347,14 @@ export default function UsersPage() {
             </form>
           </DialogContent>
         </Dialog>
-
+        <LoyaltyModal
+            isOpen={isLoyaltyModalOpen}
+            onClose={() => setIsLoyaltyModalOpen(false)}
+            user={selectedUser}
+            currentStamps={selectedUser?.loyalty?.stamp_count}
+            currentCards={selectedUser?.loyalty?.card_count}
+            onUpdate={(data) => handleLoyaltyUpdate(selectedUser?.id!, data)}
+        />
         <DataTable
             columns={columns}
             data={users}

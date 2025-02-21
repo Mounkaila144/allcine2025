@@ -2,10 +2,15 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 import { CartItem, DeliveryInfo } from '../../../types';
 
+// Mise à jour du type DeliveryInfo pour inclure isRequired
+interface DeliveryInfoWithOption extends DeliveryInfo {
+    isRequired?: boolean;
+}
+
 interface CartState {
     items: CartItem[];
     isOpen: boolean;
-    deliveryInfo: DeliveryInfo;
+    deliveryInfo: DeliveryInfoWithOption;
 }
 
 const initialState: CartState = {
@@ -14,6 +19,7 @@ const initialState: CartState = {
     deliveryInfo: {
         address: '',
         note: '',
+        isRequired: false
     }
 };
 
@@ -48,8 +54,11 @@ const cartSlice = createSlice({
                 item.quantite = action.payload.quantite;
             }
         },
-        updateDeliveryInfo: (state, action: PayloadAction<DeliveryInfo>) => {
+        updateDeliveryInfo: (state, action: PayloadAction<DeliveryInfoWithOption>) => {
             state.deliveryInfo = action.payload;
+        },
+        toggleDeliveryRequired: (state) => {
+            state.deliveryInfo.isRequired = !state.deliveryInfo.isRequired;
         },
         clearCart: (state) => {
             state.items = [];
@@ -66,6 +75,7 @@ export const {
     removeItem,
     updateQuantity,
     updateDeliveryInfo,
+    toggleDeliveryRequired,
     clearCart,
     setCartOpen
 } = cartSlice.actions;

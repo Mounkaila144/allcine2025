@@ -45,11 +45,6 @@ export const routes: Route[] = [
         href: '/dashboard/orders',
     },
     {
-        label: 'Fideliter',
-        icon: Star,
-        href: '/dashboard/reviews',
-    },
-    {
         label: 'Users',
         icon: Users,
         href: '/dashboard/users',

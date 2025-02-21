@@ -65,7 +65,7 @@ export default function AuthComponent() {
                 })
             );
 
-            toast.success("Connexion réussie", { duration: 2000 });
+            toast.success("Connexion réussie");
 
             const redirectPath = response.user.role === 'admin' ? '/dashboard' : '/client';
             router.replace(redirectPath);
