@@ -1,4 +1,3 @@
-// components/CartDrawer.tsx
 import { useDispatch, useSelector } from 'react-redux';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,6 @@ import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
     selectCartItems,
-    selectCartTotal,
     selectIsCartOpen,
     selectDeliveryInfo,
     setCartOpen,
@@ -24,29 +22,132 @@ import { useCreateOrderMutation } from "@/lib/redux/api/ordersApi";
 export const CartDrawer = () => {
     const dispatch = useDispatch();
     const items = useSelector(selectCartItems);
-    const total = useSelector(selectCartTotal);
     const isOpen = useSelector(selectIsCartOpen);
     const deliveryInfo = useSelector(selectDeliveryInfo);
     const [createOrder] = useCreateOrderMutation();
 
-    // Grouper les articles par type
-    const groupedItems = {
-        article: items.filter(item => item.type === 'article'),
-        film: items.filter(item => item.type === 'content' && item.contentDetails?.type === 'film'),
-        serie: items.filter(item => item.type === 'content' && item.contentDetails?.type === 'serie'),
-        manga: items.filter(item => item.type === 'content' && item.contentDetails?.type === 'manga')
+    // Constants for discount and pricing - Meilleure pratique
+    const SERIE_SEASON_PRICE = 500;
+    const MANGA_EPISODES_PER_PRICE_UNIT = 40;
+    const MANGA_PRICE_UNIT = 500;
+    const MANGA_SEASON_PRICE = 500; // Prix par saison pour les mangas classés par saison
+    const FILM_SET_PRICE = 500;
+    const FILM_INDIVIDUAL_PRICE = 200; // Prix individuel d'un film avant réduction
+    const DELIVERY_FEE = 1000;
+    const FILMS_IN_SET = 3;
+    const SERIES_SEASONS_FOR_FREE = 4;
+
+
+    // Calcul du total (avec réductions) et détails des réductions
+    const calculateTotal = () => {
+        let totalAvantReductions = 0;
+        let total = 0;
+        let seriesSeasonCount = 0;
+        let freeSeriesSeasonCount = 0;
+        let seriesDiscount = 0;
+        let filmDiscount = 0;
+        let deliveryFee = 0;
+        let filmCount = 0;
+
+        let articleTotal = 0;
+        let filmTotal = 0;
+        let serieTotal = 0;
+        let mangaTotal = 0;
+        let currentFilmDiscount = 0;
+        let currentSeriesDiscount = 0;
+
+
+        items.forEach(item => {
+            if (item.type === 'article') {
+                const itemPrice = item.prix * item.quantite;
+                totalAvantReductions += itemPrice;
+                total += itemPrice;
+                articleTotal += itemPrice;
+            } else if (item.contentDetails) {
+                if (item.contentDetails.type === 'film') {
+                    const itemPrice = FILM_INDIVIDUAL_PRICE;
+                    totalAvantReductions += itemPrice; // Prix individuel avant réduction
+                    filmCount++;
+                    total += itemPrice; // Sera ajusté plus tard pour la réduction 3 pour 500
+                    filmTotal += FILM_INDIVIDUAL_PRICE;
+                } else if (item.contentDetails.type === 'serie') {
+                    const seasonPrice = SERIE_SEASON_PRICE;
+                    seriesSeasonCount += item.contentDetails.saisons?.length || 0;
+                    let serieItemTotal = 0;
+                    item.contentDetails.saisons?.forEach(() => {
+                        totalAvantReductions += seasonPrice;
+                        total += seasonPrice;
+                        serieItemTotal += seasonPrice;
+                    });
+                    serieTotal += serieItemTotal;
+                } else if (item.contentDetails.type === 'manga') {
+                    let mangaItemTotal = 0;
+                    if (item.contentDetails.classification === 'season') {
+                        // Manga classé par saison (prix par saison)
+                        seriesSeasonCount += item.contentDetails.saisons?.length || 0; // Réutilise le compteur de saisons de séries pour l'offre "1 saison gratuite pour 4" si applicable aux mangas saisons
+                        item.contentDetails.saisons?.forEach(() => {
+                            const seasonPrice = MANGA_SEASON_PRICE;
+                            totalAvantReductions += seasonPrice;
+                            total += seasonPrice;
+                            mangaItemTotal += seasonPrice;
+                        });
+                    } else {
+                        // Manga classé par épisode (40 épisodes = 500f) - Default si classification non spécifiée
+                        if (item.contentDetails.episodeStart && item.contentDetails.episodeEnd) {
+                            const episodeCount = item.contentDetails.episodeEnd - item.contentDetails.episodeStart + 1;
+                            const mangaPrice = Math.ceil(episodeCount / MANGA_EPISODES_PER_PRICE_UNIT) * MANGA_PRICE_UNIT;
+                            totalAvantReductions += mangaPrice;
+                            total += mangaPrice;
+                            mangaItemTotal += mangaPrice;
+                        }
+                    }
+                    mangaTotal += mangaItemTotal;
+                }
+            }
+        });
+
+        // Réduction pour les séries (et mangas classés par saison si vous souhaitez appliquer la même réduction)
+        freeSeriesSeasonCount = Math.floor(seriesSeasonCount / SERIES_SEASONS_FOR_FREE);
+        seriesDiscount = freeSeriesSeasonCount * SERIE_SEASON_PRICE; // Utilise SERIE_SEASON_PRICE car le prix par saison manga est le même
+        currentSeriesDiscount = seriesDiscount; // Stocker la réduction actuelle pour les séries/mangas saisons
+        total -= seriesDiscount;
+        serieTotal -= seriesDiscount; // Apply discount to serie total as well
+        mangaTotal -= seriesDiscount; // Apply discount to manga total as well
+
+
+        // Réduction pour les films
+        const filmDiscountSets = Math.floor(filmCount / FILMS_IN_SET);
+        filmDiscount = filmDiscountSets * (FILMS_IN_SET * FILM_INDIVIDUAL_PRICE - FILM_SET_PRICE) ; // Calcul de la réduction totale
+        currentFilmDiscount = filmDiscount; // Stocker la réduction actuelle pour les films
+        total -= filmDiscount;
+        filmTotal -= filmDiscount; // Apply discount to film total
+
+
+        // Frais de livraison
+        if (deliveryInfo.isRequired) {
+            deliveryFee = DELIVERY_FEE;
+            total += deliveryFee;
+        }
+
+        return {
+            totalAvantReductions,
+            total,
+            seriesDiscount,
+            filmDiscount,
+            deliveryFee,
+            articleTotal,
+            filmTotal,
+            serieTotal,
+            mangaTotal,
+            currentFilmDiscount, // Ajout de la réduction actuelle pour les films
+            currentSeriesDiscount // Ajout de la réduction actuelle pour les series/mangas saisons
+        };
     };
 
-    // Calculer les totaux par catégorie
-    const categoryTotals = {
-        article: groupedItems.article.reduce((sum, item) => sum + (item.prix * item.quantite), 0),
-        film: groupedItems.film.reduce((sum, item) => sum + item.prix, 0),
-        serie: groupedItems.serie.reduce((sum, item) => sum + item.prix, 0),
-        manga: groupedItems.manga.reduce((sum, item) => sum + item.prix, 0)
-    };
+    const { total, totalAvantReductions, seriesDiscount, filmDiscount, deliveryFee, articleTotal, filmTotal, serieTotal, mangaTotal, currentFilmDiscount, currentSeriesDiscount } = calculateTotal();
+
 
     const handleQuantityChange = (id, type, change) => {
-        // N'applique la modification de quantité que pour les articles physiques
         if (type === 'article') {
             const item = items.find(item => item.id === id && item.type === type);
             if (item) {
@@ -91,9 +192,9 @@ export const CartDrawer = () => {
                             prix: item.prix,
                             type: item.contentDetails?.type || 'content',
                             titre: item.titre,
-                            saisons_possedees: item.contentDetails?.saisons_possedees,
-                            episodes_count: item.contentDetails?.episodes_count,
-                            quantity: item.contentDetails?.quantity
+                            saisons: item.contentDetails?.saisons?.map((saison: any) => saison.number),
+                            episode_start: item.contentDetails?.episodeStart,
+                            episode_end: item.contentDetails?.episodeEnd,
                         })),
                     deliveryInfo: deliveryInfo.isRequired ? deliveryInfo : null
                 }
@@ -108,19 +209,27 @@ export const CartDrawer = () => {
         }
     };
 
-    // Fonction pour générer le texte descriptif pour chaque type de contenu
     const getContentDescription = (item) => {
         if (!item.contentDetails) return '';
 
         switch (item.contentDetails.type) {
-
+            case 'serie':
+                return item.contentDetails.saisons?.map((s: any) => `Saison ${s.number}`).join(', ') || '';
+            case 'manga':
+                if (item.contentDetails.classification === 'season') {
+                    return item.contentDetails.saisons?.map((s: any) => `Saison ${s.number}`).join(', ') || '';
+                } else {
+                    return `Épisodes ${item.contentDetails.episodeStart} - ${item.contentDetails.episodeEnd}`;
+                }
+            case 'film':
+            default:
+                return '';
         }
     };
 
-    // Rendu pour les articles physiques (avec contrôle de quantité)
     const renderArticleItem = (item) => (
         <div
-            key={`${item.type}-${item.id}`}
+            key={`<span class="math-inline">\{item\.type\}\-</span>{item.id}`}
             className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
         >
             <div className="flex-grow">
@@ -158,17 +267,19 @@ export const CartDrawer = () => {
         </div>
     );
 
-    // Rendu pour le contenu digital (sans contrôle de quantité)
     const renderContentItem = (item) => (
         <div
-            key={`${item.type}-${item.id}`}
+            key={`<span class="math-inline">\{item\.type\}\-</span>{item.id}`}
             className="flex items-center justify-between p-3 bg-gray-700 rounded-lg"
         >
             <div className="flex-grow">
                 <h3 className="font-medium">{item.titre}</h3>
                 <div className="flex flex-col">
                     <p className="text-sm text-gray-400">
-                        {Number(item.prix).toFixed(2)} FCFA
+                        {item.contentDetails?.type === 'film' ? `${FILM_INDIVIDUAL_PRICE.toFixed(2)} FCFA` :
+                            item.contentDetails?.type === 'serie' ? `${SERIE_SEASON_PRICE.toFixed(2)} FCFA/Saison` :
+                                item.contentDetails?.type === 'manga' && item.contentDetails?.classification === 'season' ? `${MANGA_SEASON_PRICE.toFixed(2)} FCFA/Saison` :
+                                    item.contentDetails?.type === 'manga' ? `${MANGA_PRICE_UNIT.toFixed(2)} FCFA/${MANGA_EPISODES_PER_PRICE_UNIT} Épisodes` : ''}
                     </p>
                     <p className="text-xs text-gray-300">
                         {getContentDescription(item)}
@@ -185,8 +296,8 @@ export const CartDrawer = () => {
         </div>
     );
 
-    // Fonction pour rendre une section de type de contenu
-    const renderSection = (title, items, icon, categoryTotal, isPhysicalItem = false) => {
+
+    const renderSection = (title, items, icon, categoryTotal, discountAmount, isPhysicalItem = false) => {
         if (items.length === 0) return null;
 
         return (
@@ -196,8 +307,15 @@ export const CartDrawer = () => {
                         {icon}
                         <h3 className="font-semibold text-lg">{title}</h3>
                     </div>
-                    <div className="text-yellow-400 font-medium">
-                        {categoryTotal.toFixed(2)} FCFA
+                    <div className="flex flex-col items-end">
+                        <div className="font-semibold text-md text-green-400">
+                            {categoryTotal.toFixed(2)} FCFA
+                        </div>
+                        {discountAmount > 0 && (
+                            <div className="text-sm text-yellow-400 line-through">
+                                { (categoryTotal + discountAmount).toFixed(2) } FCFA
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="space-y-3">
@@ -209,9 +327,16 @@ export const CartDrawer = () => {
         );
     };
 
+    const groupedItems = {
+        article: items.filter(item => item.type === 'article'),
+        film: items.filter(item => item.type === 'content' && item.contentDetails?.type === 'film'),
+        serie: items.filter(item => item.type === 'content' && item.contentDetails?.type === 'serie'),
+        manga: items.filter(item => item.type === 'content' && item.contentDetails?.type === 'manga')
+    };
+
     return (
         <Sheet open={isOpen} onOpenChange={(open) => dispatch(setCartOpen(open))}>
-            <SheetContent className="flex flex-col h-screen w-[400px] sm:w-[540px] bg-gray-800 text-white">
+            <SheetContent className="flex flex-col h-screen w-full sm:w-[540px] bg-gray-800 text-white">
                 <SheetHeader className="shrink-0">
                     <SheetTitle className="text-white flex items-center">
                         <ShoppingCart className="mr-2" />
@@ -219,26 +344,24 @@ export const CartDrawer = () => {
                     </SheetTitle>
                 </SheetHeader>
 
-                {/* Conteneur principal avec flexbox et défilement */}
-                <div className="flex flex-col flex-grow overflow-y-auto">
 
-                    {/* Liste des articles par section */}
+                <div className="flex flex-col flex-grow overflow-y-auto">
                     <div className="flex-grow p-4">
                         {items.length === 0 ? (
                             <p className="text-center text-gray-400 py-4">Votre panier est vide</p>
                         ) : (
                             <>
-                                {renderSection("Articles", groupedItems.article, <Package2 className="h-5 w-5 text-blue-500" />, categoryTotals.article, true)}
-                                {renderSection("Films", groupedItems.film, <Film className="h-5 w-5 text-yellow-500" />, categoryTotals.film)}
-                                {renderSection("Séries", groupedItems.serie, <Tv className="h-5 w-5 text-yellow-500" />, categoryTotals.serie)}
-                                {renderSection("Mangas", groupedItems.manga, <BookOpen className="h-5 w-5 text-yellow-500" />, categoryTotals.manga)}
+                                {renderSection("Articles", groupedItems.article, <Package2 className="h-5 w-5 text-blue-500" />, articleTotal, 0, true)}
+                                {renderSection("Films", groupedItems.film, <Film className="h-5 w-5 text-yellow-500" />, filmTotal, currentFilmDiscount)}
+                                {renderSection("Séries", groupedItems.serie, <Tv className="h-5 w-5 text-yellow-500" />, serieTotal, currentSeriesDiscount)}
+                                {renderSection("Mangas", groupedItems.manga, <BookOpen className="h-5 w-5 text-yellow-500" />, mangaTotal, currentSeriesDiscount)}
                             </>
                         )}
                     </div>
 
-                    {/* Section inférieure (informations de livraison et bouton) */}
+
                     <div className="mt-auto p-4 shrink-0 space-y-4 border-t border-gray-700">
-                        {/* Option de livraison */}
+
                         <div className="flex items-center space-x-2 mb-2">
                             <Checkbox
                                 id="delivery-option"
@@ -253,7 +376,6 @@ export const CartDrawer = () => {
                             </label>
                         </div>
 
-                        {/* Champs de livraison conditionnels */}
                         {deliveryInfo.isRequired && (
                             <div className="space-y-3">
                                 <Input
@@ -285,6 +407,15 @@ export const CartDrawer = () => {
                             </div>
                         )}
 
+                        {/* Affichage des réductions et du total général (les réductions par catégorie sont affichées dans les sections) */}
+                        {deliveryFee > 0 && (
+                            <div className="flex justify-between items-center py-1 text-sm">
+                                <span>Frais de Livraison</span>
+                                <span className="text-blue-400">+ {deliveryFee.toFixed(2)} FCFA</span>
+                            </div>
+                        )}
+
+
                         <div className="flex justify-between items-center py-3 font-bold">
                             <span className="text-lg">Total Général</span>
                             <span className="text-lg text-green-400">{total.toFixed(2)} FCFA</span>
@@ -299,7 +430,6 @@ export const CartDrawer = () => {
                         </Button>
                     </div>
                 </div>
-            </SheetContent>
-        </Sheet>
+            </SheetContent>        </Sheet>
     );
 };

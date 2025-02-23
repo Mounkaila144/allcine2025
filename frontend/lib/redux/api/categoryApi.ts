@@ -33,6 +33,14 @@ export const categoriesApi = api.injectEndpoints({
                     limit: params.limit || 10
                 }
             }),
+            // Updated providesTags to be more specific, like in articleApi.ts
+            providesTags: (result) =>
+                result
+                    ? [
+                        ...result.categories.map(({ id }) => ({ type: 'Categories' as const, id })),
+                        { type: 'Categories' as const, id: 'LIST' }
+                    ]
+                    : [{ type: 'Categories' as const, id: 'LIST' }],
             transformResponse: (response: any) => ({
                 categories: response.categories,
                 pagination: {
@@ -54,7 +62,8 @@ export const categoriesApi = api.injectEndpoints({
                 method: 'POST',
                 body: category,
             }),
-            invalidatesTags: ['Categories'],
+            // Updated invalidatesTags to invalidate both individual and list tags
+            invalidatesTags: [{ type: 'Categories', id: 'LIST' }],
         }),
 
         updateCategory: builder.mutation<Category, { id: number; category: UpdateCategoryDto }>({
@@ -63,7 +72,11 @@ export const categoriesApi = api.injectEndpoints({
                 method: 'PUT',
                 body: category,
             }),
-            invalidatesTags: (_result, _err, { id }) => [{ type: 'Categories', id }, 'Categories'],
+            // Updated invalidatesTags to invalidate both individual and list tags
+            invalidatesTags: (result, error, { id }) => [
+                { type: 'Categories', id },
+                { type: 'Categories', id: 'LIST' }
+            ],
         }),
 
         deleteCategory: builder.mutation<void, number>({
@@ -71,7 +84,11 @@ export const categoriesApi = api.injectEndpoints({
                 url: `/categories/${id}`,
                 method: 'DELETE',
             }),
-            invalidatesTags: ['Categories'],
+            // Updated invalidatesTags to invalidate both individual and list tags
+            invalidatesTags: (result, error, id) => [
+                { type: 'Categories', id },
+                { type: 'Categories', id: 'LIST' }
+            ],
         }),
     }),
 });

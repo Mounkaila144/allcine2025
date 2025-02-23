@@ -85,6 +85,19 @@ const Content = sequelize.define('Content', {
             min: 0,
             max: 10
         }
+    },
+    est_par_saison: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+        allowNull: false
+    },
+    episode_debut: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+    },
+    episode_fin: {
+        type: DataTypes.INTEGER,
+        allowNull: true
     }
 });
 

@@ -1,3 +1,4 @@
+// ordersApi.ts
 import { api } from '../api';
 
 export interface User {
@@ -23,6 +24,7 @@ export interface OrderContent {
 }
 
 export interface DeliveryInfo {
+    isRequired: boolean; // Ajout de isRequired pour indiquer si la livraison est demandée
     address: string;
     note?: string;
 }
@@ -35,7 +37,9 @@ export interface Order {
         total: number;
         articles?: OrderArticle[];
         contents?: OrderContent[];
-        deliveryInfo: DeliveryInfo;
+        deliveryInfo?: DeliveryInfo; // deliveryInfo peut être optionnel
+        filmDiscount?: number; // Assurez-vous que ces champs existent dans votre Order type
+        seriesDiscount?: number; // Assurez-vous que ces champs existent dans votre Order type
     };
     statut: 'en_attente' | 'confirme' | 'livre';
     createdAt: string;
@@ -66,6 +70,14 @@ export const ordersApi = api.injectEndpoints({
             }),
             invalidatesTags: ['Orders'],
         }),
+
+        deleteOrder: builder.mutation<void, number>({ // Mutation pour supprimer une commande
+            query: (id) => ({
+                url: `/orders/${id}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['Orders'],
+        }),
     }),
 });
 
@@ -73,4 +85,5 @@ export const {
     useGetOrdersQuery,
     useCreateOrderMutation,
     useUpdateOrderStatusMutation,
+    useDeleteOrderMutation // Exportez le nouveau hook useDeleteOrderMutation
 } = ordersApi;

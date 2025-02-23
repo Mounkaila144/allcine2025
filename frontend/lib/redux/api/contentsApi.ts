@@ -1,3 +1,4 @@
+// contentsApi.ts
 import { api } from '../api';
 
 export type ContentStatus = 'released' | 'upcoming' | 'cancelled';
@@ -20,8 +21,12 @@ export interface Content {
     episodes_count?: number;  // Pour les séries
     original_title?: string;  // Titre original si différent
     language: string;        // Langue originale
+    est_par_saison: boolean,
+    episode_debut: number,
+    episode_fin: number,
     production_country: string | null;
     average_rating?: number;  // Note moyenne /10
+    saisons?: { id: number; number: number; episode_start?: number; episode_end?: number; }[]; //pour les series et manga
 }
 
 export interface ContentFilters {
@@ -35,8 +40,8 @@ export interface ContentFilters {
     language?: string | null;
 }
 
-export interface CreateContentDto extends Omit<Content, 'id' | 'added_date'> {}
-export interface UpdateContentDto extends Partial<CreateContentDto> {}
+export interface CreateContentDto extends Omit<Content, 'id' | 'added_date'> { }
+export interface UpdateContentDto extends Partial<CreateContentDto> { }
 
 export const contentsApi = api.injectEndpoints({
     endpoints: (builder) => ({

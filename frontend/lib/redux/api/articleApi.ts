@@ -1,4 +1,4 @@
-
+//articleApi.js
 import { api } from '../api';
 
 export interface Article {

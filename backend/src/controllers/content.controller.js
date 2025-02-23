@@ -1,3 +1,4 @@
+//content.controller.js
 const { Content, Like, User} = require('../models');
 const path = require('path');
 const fs = require('fs');
@@ -77,7 +78,9 @@ const createContent = async (req, res) => {
             rating,
             duration_minutes,
             episodes_count,
-            original_title,
+            est_par_saison,
+            episode_debut,
+            episode_fin,
             language,
             production_country,
             average_rating
@@ -95,6 +98,9 @@ const createContent = async (req, res) => {
             status: status || 'released',
             rating,
             duration_minutes,
+            est_par_saison,
+            episode_debut,
+            episode_fin,
             episodes_count,
             original_title,
             language: language || 'fr',
@@ -128,6 +134,9 @@ const updateContent = async (req, res) => {
             release_date,
             status,
             rating,
+            est_par_saison,
+            episode_debut,
+            episode_fin,
             duration_minutes,
             episodes_count,
             original_title,
@@ -153,6 +162,9 @@ const updateContent = async (req, res) => {
             release_date,
             status,
             rating,
+            est_par_saison,
+            episode_debut,
+            episode_fin,
             duration_minutes,
             episodes_count,
             original_title,

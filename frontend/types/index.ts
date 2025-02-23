@@ -15,11 +15,7 @@ export interface DeliveryInfo {
     note: string;
     isRequired?: boolean;
 }
-type ContentDetails = {
-    type: 'serie' | 'film' | 'manga';
-    saisons_possedees?: number[];  // Tableau des numéros de saisons
-    // ... autres propriétés
-};
+
 export interface CartItem {
     type: 'article' | 'content';
     id: number;
@@ -27,6 +23,29 @@ export interface CartItem {
     prix: number;
     quantite: number;
     saisons_possedees?: number;
+}
+
+export interface DeliveryInfo {
+    address: string;
+    note: string;
+}
+export interface CartItem {
+    id: number;
+    type: 'article' | 'content';
+    titre: string;
+    prix: number;
+    quantite: number;
+    contentDetails?: ContentDetails;
+}
+
+export interface ContentDetails {
+    type: 'film' | 'serie' | 'manga';
+    saisons_possedees?: number;
+    episodes_count?: number;
+    quantity?: number;
+    saisons?: { number: number }[]; // <-- Correction de la syntaxe
+    episodeStart?: number;
+    episodeEnd?: number;
 }
 
 export interface DeliveryInfo {

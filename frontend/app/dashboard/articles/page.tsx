@@ -216,7 +216,7 @@ export default function ArticlesPage() {
                 </div>
             ),
             render: (article: Article) => (
-                <span className="text-green-400">{Number(article.prix).toFixed(2)} €</span>
+                <span className="text-green-400">{Number(article.prix)} CFA</span>
             )
         },
         {

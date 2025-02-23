@@ -1,6 +1,7 @@
+// cartSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-import { CartItem, DeliveryInfo } from '../../../types';
+import {CartItem, DeliveryInfo} from "@/types";
 
 // Mise à jour du type DeliveryInfo pour inclure isRequired
 interface DeliveryInfoWithOption extends DeliveryInfo {
@@ -30,11 +31,14 @@ const cartSlice = createSlice({
         addItem: (state, action: PayloadAction<CartItem>) => {
             const existingItem = state.items.find(
                 item => item.id === action.payload.id && item.type === action.payload.type
+                    && JSON.stringify(item.contentDetails) === JSON.stringify(action.payload.contentDetails) // Comparaison des détails
             );
 
             if (existingItem) {
+                // Si l'élément existe déjà AVEC les mêmes détails, incrémenter la quantité
                 existingItem.quantite += action.payload.quantite;
             } else {
+                // Sinon, ajouter un nouvel élément
                 state.items.push(action.payload);
             }
         },
@@ -82,7 +86,7 @@ export const {
 
 export const selectCartItems = (state: RootState) => state.cart.items;
 export const selectCartTotal = (state: RootState) =>
-    state.cart.items.reduce((total, item) => total + item.prix * item.quantite, 0);
+    state.cart.items.reduce((total, item) => total + item.prix * item.quantite, 0); //sera redefini dans le CartDrawer
 export const selectIsCartOpen = (state: RootState) => state.cart.isOpen;
 export const selectDeliveryInfo = (state: RootState) => state.cart.deliveryInfo;
 

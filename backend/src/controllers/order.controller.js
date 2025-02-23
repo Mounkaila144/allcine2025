@@ -1,3 +1,4 @@
+// order.controller.js
 const { Order, User } = require('../models');
 
 const createOrder = async (req, res) => {
@@ -66,7 +67,7 @@ const updateOrderStatus = async (req, res) => {
         }
 
         await order.update({ statut });
-console.log(order)
+        console.log(order)
         res.json(order);
     } catch (error) {
         res.status(500).json({
@@ -76,8 +77,31 @@ console.log(order)
     }
 };
 
+const deleteOrder = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const order = await Order.findByPk(id);
+        if (!order) {
+            return res.status(404).json({ message: 'Commande non trouvée' });
+        }
+
+        await order.destroy();
+
+        res.json({ message: 'Commande supprimée avec succès' });
+    } catch (error) {
+        console.error('Erreur lors de la suppression de la commande:', error);
+        res.status(500).json({
+            message: 'Erreur lors de la suppression de la commande',
+            error: error.message
+        });
+    }
+};
+
+
 module.exports = {
     createOrder,
     getUserOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    deleteOrder
 };
