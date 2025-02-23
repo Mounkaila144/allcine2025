@@ -176,7 +176,7 @@ export const CartDrawer = () => {
         try {
             const orderData = {
                 data: {
-                    total,
+                    total: deliveryInfo.isRequired ? total + DELIVERY_FEE : total,
                     articles: items
                         .filter(item => item.type === 'article')
                         .map(item => ({
@@ -196,7 +196,11 @@ export const CartDrawer = () => {
                             episode_start: item.contentDetails?.episodeStart,
                             episode_end: item.contentDetails?.episodeEnd,
                         })),
-                    deliveryInfo: deliveryInfo.isRequired ? deliveryInfo : null
+                    deliveryInfo: {
+                        isRequired: deliveryInfo.isRequired,
+                        address: deliveryInfo.address,
+                        note: deliveryInfo.note
+                    }
                 }
             };
 
@@ -208,7 +212,6 @@ export const CartDrawer = () => {
             toast.error('Erreur lors de la création de la commande');
         }
     };
-
     const getContentDescription = (item) => {
         if (!item.contentDetails) return '';
 
@@ -363,7 +366,7 @@ export const CartDrawer = () => {
                     <div className="mt-auto p-4 shrink-0 space-y-4 border-t border-gray-700">
 
                         <div className="flex items-center space-x-2 mb-2">
-                            <Checkbox
+                            <Checkbox className=" border-white "
                                 id="delivery-option"
                                 checked={deliveryInfo.isRequired || false}
                                 onCheckedChange={() => dispatch(toggleDeliveryRequired())}

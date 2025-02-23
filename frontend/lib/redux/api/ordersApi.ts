@@ -24,7 +24,7 @@ export interface OrderContent {
 }
 
 export interface DeliveryInfo {
-    isRequired: boolean; // Ajout de isRequired pour indiquer si la livraison est demandée
+    isRequired: boolean;
     address: string;
     note?: string;
 }
@@ -35,11 +35,11 @@ export interface Order {
     User?: User;
     data: {
         total: number;
-        articles?: OrderArticle[];
-        contents?: OrderContent[];
-        deliveryInfo?: DeliveryInfo; // deliveryInfo peut être optionnel
-        filmDiscount?: number; // Assurez-vous que ces champs existent dans votre Order type
-        seriesDiscount?: number; // Assurez-vous que ces champs existent dans votre Order type
+        articles: OrderArticle[];
+        contents: OrderContent[];
+        filmDiscount?: number;
+        seriesDiscount?: number;
+        deliveryInfo: DeliveryInfo; // Assurons-nous que deliveryInfo est inclus dans data
     };
     statut: 'en_attente' | 'confirme' | 'livre';
     createdAt: string;

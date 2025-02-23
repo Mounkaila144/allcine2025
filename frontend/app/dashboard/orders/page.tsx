@@ -224,7 +224,6 @@ export default function OrdersPage() {
                         </div>
                     )}
 
-
                     <div className="border-b border-gray-700 pb-4">
                       <Label className="text-white mb-2 block">Articles</Label>
                       <div className="space-y-2">
@@ -306,16 +305,14 @@ export default function OrdersPage() {
                                             </span>
                           </div>
                       )}
-
-                      {selectedOrder.deliveryInfo && selectedOrder.deliveryInfo.isRequired && (
-                          <div className="mb-2 flex justify-between text-sm text-gray-300">
-                            <span>Frais de livraison</span>
-                            <span className="text-blue-400">+ {1000} CFA</span>
-                          </div>
-                      )}
                       <div className="flex justify-between font-bold text-white text-lg pt-2 border-t border-gray-700">
                         <span>Total Général</span>
-                        <span className="text-green-400">{selectedOrder.data.total} CFA</span>
+                        <div className="flex flex-col items-end">
+                          <span className="text-green-400">{selectedOrder.data.total} CFA</span>
+                          {selectedOrder.data.deliveryInfo?.isRequired && (
+                              <span className="text-sm text-gray-400">(dont frais de livraison: 1000 CFA)</span>
+                          )}
+                        </div>
                       </div>
                     </div>
 

@@ -52,7 +52,7 @@ export default function Navbar() {
         if (isAuthenticated) {
             return (
                 <div className="flex items-center gap-2">
-                    {user?.role === "admin" && (
+                     {user?.role === "admin" && (
                         <Link
                             href="/dashboard"
                             className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-yellow-600/10 text-yellow-500 hover:bg-yellow-600 hover:text-white transition-colors"

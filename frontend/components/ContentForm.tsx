@@ -238,7 +238,7 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                             ) : (
                                 <div className="flex space-x-4 items-center">
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Checkbox className=" border-white "
                                             id="est_par_saison_oui"
                                             name="est_par_saison"
                                             checked={formData.est_par_saison === true}
@@ -247,7 +247,7 @@ export default function ContentForm({ onSubmit, initialData, onCancel, readOnly 
                                         <Label htmlFor="est_par_saison_oui" className="ml-2">Par Saison</Label>
                                     </div>
                                     <div className="flex items-center">
-                                        <Checkbox
+                                        <Checkbox className=" border-white "
                                             id="est_par_saison_non"
                                             name="est_par_saison"
                                             checked={formData.est_par_saison === false}
